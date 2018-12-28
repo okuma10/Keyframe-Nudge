@@ -1,10 +1,15 @@
 bl_info = {
-  "name" : "Keyframe Nudge",
-  "support" : "COMMUNITY",
-  "category": "Animation",
+    "name" : "Keyframe Nudge",
+    "author" : "blenderID:okuma_10",
+    "version" : (0, 1, 0),
+    "location" : "Graph Editor > N - hotkey ",
+    "description" : "Various automate keyframe manipulation scripts",
+    "support" : "COMMUNITY",
+    "category": "Animation",
 }
 
 import bpy
+from bisect import bisect
 
 #=============== Functions ====================
 #                   |
@@ -27,7 +32,7 @@ def insert_empty_frame(usr_inp):
 
             #================== Initial Frame =====================
             initial_time_frame = float(bpy.context.scene.frame_current)
-
+            print(initial_time_frame)
             # ====================== Procedure ====================
             #                           |
 
@@ -265,6 +270,65 @@ def hold_keyframe_for(usr_inp):
                     nsk.handle_right[0] += push_back_non_selected_by
 
 
+def come_over_here_nudge():
+    selected = bpy.context.selected_objects
+
+    for obj in selected:
+        anim = obj.animation_data
+
+        #========= Get initial data and define global variables ==============
+        fc = [fc for fc in anim.action.fcurves]
+        time_position = bpy.context.scene.frame_current
+        if_missing_keyframe = []
+
+        # ====== get selected keyframe frame position =========
+        for fcurve in fc:
+
+            if not fcurve.hide:
+                selected_keyframes = [keyframe for keyframe in fcurve.keyframe_points if keyframe.select_control_point]
+                try:
+                    if_missing_keyframe.append(selected_keyframes[0].co[0])
+                except:
+                    pass
+
+        #============= Create keyframe employment list =========
+        for fcurve in fc:
+
+            allKeyframes = [keyframe for keyframe in fcurve.keyframe_points]
+            keyframe_querry_list = [keyframe.co[0] for keyframe in allKeyframes]
+            employed_keyframes_list = []
+
+            try:
+                if if_missing_keyframe[0] in keyframe_querry_list:
+                    start_index = keyframe_querry_list.index(if_missing_keyframe[0])
+                    employed_keyframes_list = [keyframe for keyframe in allKeyframes[start_index:]]
+                else:
+                    start_index = bisect(keyframe_querry_list,if_missing_keyframe[0])
+                    employed_keyframes_list = [keyframe for keyframe in allKeyframes[start_index:]]
+            except:
+                print('Exceptin!')
+
+            #========== keyframe job assingment =========
+            distance_to_time = time_position - if_missing_keyframe[0]
+            to_move = distance_to_time
+
+            if to_move > 0:
+                while employed_keyframes_list:
+                    employed_keyframes_list.reverse()
+                    employed_keyframes_list[0].co[0] += to_move
+                    employed_keyframes_list[0].handle_left[0] += to_move
+                    employed_keyframes_list[0].handle_right[0] += to_move
+                    del employed_keyframes_list[0]
+            else:
+                while employed_keyframes_list:
+                    employed_keyframes_list[0].co[0] += to_move
+                    employed_keyframes_list[0].handle_left[0] += to_move
+                    employed_keyframes_list[0].handle_right[0] += to_move
+                    del employed_keyframes_list[0]
+
+
+
+
 #=============== Operators ====================
 #                   |
 class Insert_empty_Frame(bpy.types.Operator):
@@ -305,6 +369,16 @@ class Hold_Keyframe_For(bpy.types.Operator):
         hold_keyframe_for(nudge_input)
         return {'FINISHED'}
 
+
+class Come_Over_Here(bpy.types.Operator):
+    """Tooltip"""
+    bl_idname = "nudge.come_over_here"
+    bl_label = "Push/Pull to current frame"
+
+
+    def execute(self, context):
+        come_over_here_nudge()
+        return {'FINISHED'}
 
 #============== UI Panel ====================
 #                 |
@@ -348,7 +422,7 @@ class Keyframe_Nudge_Panel(bpy.types.Panel):
         row_col.operator('nudge.keyframe_nudge', text='-').nudge_input = int("-" + str(context.scene.nudge_driver))
 
         row = layout.row()
-        row.label(text='')
+        row.operator('nudge.come_over_here', text='Come Over')
         row.operator('nudge.hold_for',text='Hold For').nudge_input = context.scene.nudge_driver
         row.label(text='')
 
@@ -356,6 +430,7 @@ def register():
     bpy.utils.register_class(Insert_empty_Frame)
     bpy.utils.register_class(Keyframe_Nudge)
     bpy.utils.register_class(Hold_Keyframe_For)
+    bpy.utils.register_class(Come_Over_Here)
     bpy.utils.register_class(Keyframe_Nudge_Panel)
 
 
@@ -363,6 +438,7 @@ def unregister():
     bpy.utils.unregister_class(Insert_empty_Frame)
     bpy.utils.unregister_class(Keyframe_Nudge)
     bpy.utils.unregister_class(Hold_Keyframe_For)
+    bpy.utils.unregister_class(Come_Over_Here)
     bpy.utils.unregister_class(Keyframe_Nudge_Panel)
 
 
