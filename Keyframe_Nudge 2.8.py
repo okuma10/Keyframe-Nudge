@@ -1,7 +1,7 @@
 bl_info = {
     "name" : "Keyframe Nudge",
     "author" : "blenderID:okuma_10",
-    "version" : (0, 1, 0),
+    "version" : (0, 3, 5),
     "blender" : (2, 80, 0),
     "description" : "Various automate keyframe manipulation scripts",
     "support" : "COMMUNITY",
@@ -13,119 +13,91 @@ from bisect import bisect
 
 #=============== Functions ====================
 #                   |
+
 def insert_empty_frame(usr_inp):
     selected = bpy.context.selected_objects
-    im_sick_of_this = bpy.context.scene.frame_current
     control = usr_inp
-
+    print('{:=^40}'.format(' START '))
     for obj in selected:
         anim = obj.animation_data
+        fcurves = [fc for fc in anim.action.fcurves]
+        time_position = bpy.context.scene.frame_current
+        if_selected_keyframes = []
+        all_keyframes = []
 
-        for fc in anim.action.fcurves:
 
-            # ================= All Keyframes ====================
-            all_keyframes = [keyframe for keyframe in fc.keyframe_points]
-            keyframe_list_compare = [keyframe.co[0] for keyframe in all_keyframes]
+        # ============== find selected keyframes(position) ============
+        for fc in fcurves:
+            selected_keyframe = [keyframe.co[0] for keyframe in fc.keyframe_points if keyframe.select_control_point]
+            fc_all_keyframes = [keyframe for keyframe in fc.keyframe_points]
+            try:
+                all_keyframes.extend(fc_all_keyframes)
+                if_selected_keyframes.extend(selected_keyframe)
+            except:
+                pass
+        if_selected_keyframes = list(set(if_selected_keyframes))
+        if_selected_keyframes.sort()
 
-            # ================= Selected Keyframes ================
-            selected_keyframes = [keyframe for keyframe in fc.keyframe_points if keyframe.select_control_point]
+        #======================= second run ===========================
 
-            #================== Initial Frame =====================
-            initial_time_frame = float(bpy.context.scene.frame_current)
-            print(initial_time_frame)
-            # ====================== Procedure ====================
-            #                           |
+        #==================== create employee list ====================
+        all_keyframes_numerate = [keyframe.co[0] for keyframe in all_keyframes]
+        all_keyframes_list = list(zip(all_keyframes_numerate,all_keyframes))
+        all_keyframes_list.sort(key=lambda x: x[0])
+        all_keyframes_list_querry = [x for x,y in all_keyframes_list]
 
-            # ============== If user selected Keyframe ============
-            # ============ Define list based on selection =========
-            if len(selected_keyframes) > 0:
-                first_selected_index = all_keyframes.index(selected_keyframes[0])
-                working_list = all_keyframes[first_selected_index:]
+        employee_list = []
 
-                # ======================== Body ========================
-                if control > 0:
-                    working_list.reverse()
+        #================= if we have selected keyframes ==============
+        if if_selected_keyframes:
+            try:
+                if if_selected_keyframes[0] in all_keyframes_list_querry:
+                    start_index = all_keyframes_list_querry.index(if_selected_keyframes[0])
+                    employee_list.extend(all_keyframes_list[start_index:])
 
-                    while len(working_list) > 0:
-                        if working_list[-1].co[0] == 0.0:
-                            if len(working_list) == 1:
-                                working_list[0].co[0] = 0.0
-                                # del working_list[0]
-                            else:
-                                working_list[0].co[0] += control
-                                working_list[0].handle_right[0] += control
-                                working_list[0].handle_left[0] += control
-                                # del working_list[0]
+            except:
+                print('{:!<40}'.format(' EXCEPTION  '))
+        #=============== if we don't have selected keyframes ==========
+        else:
+            if time_position in all_keyframes_list_querry:
+                start_index = all_keyframes_list_querry.index(time_position)
+                employee_list.extend(all_keyframes_list[start_index:])
 
-                        else:
-                            working_list[0].co[0] += control
-                            working_list[0].handle_right[0] += control
-                            working_list[0].handle_left[0] += control
-                        del working_list[0]
-
-                elif control < 0:
-                    while len(working_list):
-                        if working_list[0].co[0] == 0.0:
-                            working_list[0].co[0] = 0.0
-
-                        else:
-                            working_list[0].co[0] += control
-                            working_list[0].handle_right[0] += control
-                            working_list[0].handle_left[0] += control
-
-                        del working_list[0]
-
-            # ============ If there is no selected keyframe ==============
             else:
-                # ======= getting list based on frame position ===========
+                start_index = bisect(all_keyframes_list_querry,time_position)
+                employee_list.extend(all_keyframes_list[start_index:])
 
-                working_list2 = []
+        #================ Employee job assingment ===============
 
-                if initial_time_frame in keyframe_list_compare:
-                    first_key_index = keyframe_list_compare.index(initial_time_frame)
+        if control > 0:
+            employee_list.reverse()
 
-                    working_list2.extend([keyframe for keyframe in all_keyframes[first_key_index:]])
+            while employee_list:
+                action_list = [keyframe for frame,keyframe in employee_list]
+                print(action_list[0].co[0])
+                if action_list[0].co[0] == 0.0:
+                    print('keyframe 0')
+                    action_list[0].co[0] = 0.0
 
                 else:
-                    bpy.ops.screen.keyframe_jump(next=True)
-                    current_time_frame = float(bpy.context.scene.frame_current)
+                    action_list[0].co[0] += control
+                    action_list[0].handle_left[0] += control
+                    action_list[0].handle_right[0] += control
 
-                    first_key_index = keyframe_list_compare.index(current_time_frame)
+                del employee_list[0]
 
-                    working_list2.extend([keyframe for keyframe in all_keyframes[first_key_index:]])
-                # ======================= Body ==========================
+        else:
+            while employee_list:
+                action_list = [keyframe for frame, keyframe in employee_list]
+                if action_list[0].co[0] == 0.0:
+                    action_list[0].co[0] = 0.0
 
-                if control > 0:
-                    working_list2.reverse()
-                    
-                    while len(working_list2) > 0:
-                        if working_list2[-1].co[0] == 0.0:
-                            if len(working_list2) == 1:
-                                working_list2[0].co[0] = 0.0
-                                # del working_list[0]
-                            else:
-                                working_list2[0].co[0] += control
-                                working_list2[0].handle_right[0] += control
-                                working_list2[0].handle_left[0] += control
-                                # del working_list[0]
+                else:
+                    action_list[0].co[0] += control
+                    action_list[0].handle_left[0] += control
+                    action_list[0].handle_right[0] += control
 
-                        else:
-                            working_list2[0].co[0] += control
-                            working_list2[0].handle_right[0] += control
-                            working_list2[0].handle_left[0] += control
-                        del working_list2[0]
-
-                elif control < 0:
-                    while len(working_list2) > 0:
-                        if working_list2[0].co[0] == 0.0:
-                            working_list2[0].co[0] = 0.0
-                        else:
-                            working_list2[0].co[0] = working_list2[0].co[0] + control
-                            working_list2[0].handle_right[0] += control
-                            working_list2[0].handle_left[0] += control
-                        del working_list2[0]
-
-        bpy.context.scene.frame_set(im_sick_of_this)
+                del employee_list[0]
 
 
 def keyframe_nudge(usr_inp):
@@ -170,104 +142,124 @@ def keyframe_nudge(usr_inp):
 
 def hold_keyframe_for(usr_inp):
     selected = bpy.context.selected_objects
-
     control = usr_inp
 
     for obj in selected:
+        print('{:=^40}'.format(' START '))
+
         anim = obj.animation_data
+        fcurves = [fc for fc in anim.action.fcurves]
+        keyframes_list = []
+        non_selected_keyframes = []
+        all_keyframes_global = []
 
-        for fc in anim.action.fcurves:
-            # ==================== Full Keyframe List ======================
-            #empty for now
+        # ============ Getting list of the frames that we have keyframes for - globaly ==================================
+        for fc in fcurves:
+            all_keyframes = [keyframe.co[0] for keyframe in fc.keyframe_points] #<--hitchhikes this itteration
+            fc_selected_keyframes = [keyframe.co[0] for keyframe in fc.keyframe_points if keyframe.select_control_point]
+            try:
+                keyframes_list.extend(fc_selected_keyframes)
+                all_keyframes_global.extend(all_keyframes)
+            except:
+                pass
+        keyframes_list = list(set(keyframes_list)) #<----- remove duplicates
+        all_keyframes_global = list(set(all_keyframes_global))
+        all_keyframes_global.sort()
 
-            # ==================== Selected Keyframes ======================
-            selected_keyframes = [keyframe for keyframe in fc.keyframe_points if keyframe.select_control_point]
+        #============ Creating list of frame/keyframe tuples of non selected keyframes after selected ====================
+        last_index = all_keyframes_global.index(keyframes_list[-1])
+        non_selected_keyframes = [keyframe for keyframe in all_keyframes_global[last_index+1:]]
+        avoiding_keyframes = {}
+        for key in non_selected_keyframes:
+            avoiding_keyframes[key] = []
 
-            # ==================== Non Selected Keyframes ======================
-            not_selected_keyframes = [keyframe for keyframe in fc.keyframe_points if
-                                      keyframe.select_control_point == False and keyframe.co[0] >
-                                      selected_keyframes[-1].co[0]]
+        for fc in fcurves:
+            fc_all_keyframes = [keyframe for keyframe in fc.keyframe_points]
+            for keyframe in fc_all_keyframes:
+                if keyframe.co[0] in avoiding_keyframes.keys():
+                    avoiding_keyframes[keyframe.co[0]].append(keyframe)
 
-            # ================== Push Away Non Selected Keyframes ===============
-            if len(not_selected_keyframes) > 0:
-                not_selected_keyframes.reverse()
-                for nsk in not_selected_keyframes:
-                    nsk.co[0] += 300000
-                    nsk.handle_left[0] += 300000
-                    nsk.handle_right[0] += 300000
+        avoiding_keyframes_list = [(k,v) for k,v in avoiding_keyframes.items()]
+        avoiding_keyframes_list.sort() #<---------------- we now have a workable frame/list of keyframes to push away
 
-            # ==================== Work ======================
-            completed_list = []
-            while len(selected_keyframes) > 0:
+        # =========== Creating dictionary of emploied keyframes at the keyframes_list keyframes ==========================
+        emploied_keyframes = {}
+        for key in keyframes_list:
+            emploied_keyframes[key] = []
 
+        for fc in fcurves:
+            fc_selected_keyframes = [keyframe for keyframe in fc.keyframe_points if keyframe.select_control_point]
+            for keyframe in fc_selected_keyframes:
+                if keyframe.co[0] in emploied_keyframes.keys():
+                    emploied_keyframes[keyframe.co[0]].append(keyframe)
 
-                if len(selected_keyframes) > 2:
-                    # ==================== Finding data for the keyframe to be moved ========================
-                    current_distance = selected_keyframes[1].co[0] - selected_keyframes[0].co[0]
-                    to_move = control - current_distance
-                    projection = selected_keyframes[1].co[0] + to_move
+        emploied_keyframes_list = [(k,v) for k,v in emploied_keyframes.items()]
+        emploied_keyframes_list.sort() #<------------------------ we now have workable frame/list of keyframes to work with!
 
-                    projected_frame_to_move_distance_to_next = selected_keyframes[2].co[0] - projection
+        #===================== Creating keyframe frame/projection tuple list ==============================================
+        keyframes_list.sort()
+        completed_list = []
+        projection = 0.0
+        projected_list = []
+        projected_list.append(keyframes_list[0])
+        while keyframes_list:
+            if len(keyframes_list)>1:
+                try:
+                    current_distance = keyframes_list[1] - projected_list[-1]
+                except:
+                    print('exception occured!!')
 
-
-                    if projected_frame_to_move_distance_to_next > 0:
-                        selected_keyframes[1].co[0] += to_move
-                        selected_keyframes[1].handle_left[0] += to_move
-                        selected_keyframes[1].handle_right[0] += to_move
-
-
-                    elif projected_frame_to_move_distance_to_next <= 0:
-
-                        friendly_fire_initial_distance = selected_keyframes[2].co[0] - selected_keyframes[1].co[0]
-                        push_next_by = friendly_fire_initial_distance + abs(projected_frame_to_move_distance_to_next)
-
-
-                        # ======= Create a new list of remaining keyframes and reverse them========
-                        unprocessed_keyframes = [k for k in selected_keyframes[2:]]
-                        unprocessed_keyframes.reverse()
-
-
-                        while len(unprocessed_keyframes) > 0:
-                            unprocessed_keyframes[0].co[0] += push_next_by
-                            unprocessed_keyframes[0].handle_left[0] += push_next_by
-                            unprocessed_keyframes[0].handle_right[0] += push_next_by
-
-                            unprocessed_keyframes.pop(0)
-
-                        selected_keyframes[1].co[0] += to_move
-                        selected_keyframes[1].handle_left[0] += to_move
-                        selected_keyframes[1].handle_right[0] += to_move
-
-                if len(selected_keyframes) == 2:  # <-----if there are only 2 keyframes selected or left in list
-
-                    distance_case_2 = selected_keyframes[1].co[0] - selected_keyframes[0].co[0]
-                    to_move = control - distance_case_2
-                    if distance_case_2 > control:
-                        to_move_case_2 = control - distance_case_2
-                        selected_keyframes[1].co[0] += to_move_case_2
-                        selected_keyframes[1].handle_left[0] += to_move_case_2
-                        selected_keyframes[1].handle_right[0] += to_move_case_2
-                    else:
-                        selected_keyframes[1].co[0] += to_move
-                        selected_keyframes[1].handle_left[0] += to_move
-                        selected_keyframes[1].handle_right[0] += to_move
-
-                if len(selected_keyframes) == 1:  # <------ if there is only one keyframe selected or left in list
-                    selected_keyframes[0].co[0] = selected_keyframes[0].co[0]
-
-                completed_list.append(selected_keyframes.pop(0))
+                to_move = control - current_distance
+                projection = keyframes_list[1] + to_move
 
 
-            # =========== Bring Back Not Selected ========
-            if len(not_selected_keyframes) > 0:
-                not_selected_keyframes.reverse()
-                distance_from_last_selected = not_selected_keyframes[0].co[0] - completed_list[-1].co[0]
-                push_back_non_selected_by = control - distance_from_last_selected
+            elif len(keyframes_list) == 1: #at the end there is duplication of the last frame projection,this avoids it
+                break
 
-                for nsk in not_selected_keyframes:
-                    nsk.co[0] += push_back_non_selected_by
-                    nsk.handle_left[0] += push_back_non_selected_by
-                    nsk.handle_right[0] += push_back_non_selected_by
+            projected_list.append(projection)
+
+            completed_list.append(keyframes_list.pop(0))
+        completed_list.append(keyframes_list.pop(0)) #<------get last number
+
+        projection_coordinates = list(zip(completed_list,projected_list)) #<---- we now have tuple list with keyframe's frame
+                                                                                                     #  and it's new position
+        #=========================== Task asignment to employee list =======================================================
+        #====================push away non selected keyframes after last selected keyframe==================================
+        captrue_avoiding_keyframes_list = []
+        try:
+            distance_from_projection = avoiding_keyframes_list[0][0] - projection_coordinates[-1][1]
+            new_first_position = projection_coordinates[-1][1] + control
+            to_move = new_first_position - avoiding_keyframes_list[0][0]
+
+            if distance_from_projection < 0:
+                avoiding_keyframes_list.reverse()
+                while avoiding_keyframes_list:
+                    for keyframe in avoiding_keyframes_list[0][1]:
+                        keyframe.co[0] += to_move
+                        keyframe.handle_left[0] += to_move
+                        keyframe.handle_right[0] += to_move
+                    captrue_avoiding_keyframes_list.append(avoiding_keyframes_list.pop(0))
+            else:
+                while avoiding_keyframes_list:
+                    for keyframe in avoiding_keyframes_list[0][1]:
+                        keyframe.co[0] += to_move
+                        keyframe.handle_left[0] += to_move
+                        keyframe.handle_right[0] += to_move
+                    captrue_avoiding_keyframes_list.append(avoiding_keyframes_list.pop(0))
+        except:
+            pass
+
+        #========================== give the tasks to the employee keyframes ==============================================
+        capture_projection_coordinates = []
+        while projection_coordinates:
+            if projection_coordinates[0][0] == emploied_keyframes_list[0][0]:
+                for keyframe in emploied_keyframes_list[0][1]:
+                    to_move = projection_coordinates[0][1] - projection_coordinates[0][0]
+                    keyframe.co[0] = projection_coordinates[0][1]
+                    keyframe.handle_left[0] += to_move
+                    keyframe.handle_right[0] += to_move
+            capture_projection_coordinates.append(projection_coordinates.pop(0))
+            del emploied_keyframes_list[0]
 
 
 def come_over_here_nudge():
@@ -276,57 +268,77 @@ def come_over_here_nudge():
     for obj in selected:
         anim = obj.animation_data
 
-        #========= Get initial data and define global variables ==============
+        print('{:=^40}'.format(' START '))
+        # ========= Get initial data and define global variables ==============
         fc = [fc for fc in anim.action.fcurves]
         time_position = bpy.context.scene.frame_current
-        if_missing_keyframe = []
+        all_selected_keyframes = []
+        all_keyframes_list = []
 
         # ====== get selected keyframe frame position =========
         for fcurve in fc:
-
-            if not fcurve.hide:
-                selected_keyframes = [keyframe for keyframe in fcurve.keyframe_points if keyframe.select_control_point]
-                try:
-                    if_missing_keyframe.append(selected_keyframes[0].co[0])
-                except:
-                    pass
-
-        #============= Create keyframe employment list =========
-        for fcurve in fc:
-
-            allKeyframes = [keyframe for keyframe in fcurve.keyframe_points]
-            keyframe_querry_list = [keyframe.co[0] for keyframe in allKeyframes]
-            employed_keyframes_list = []
-
+            all_keyframes = [keyframe.co[0] for keyframe in fcurve.keyframe_points]
+            selected_keyframes = [keyframe.co[0] for keyframe in fcurve.keyframe_points if
+                                  keyframe.select_control_point]
             try:
-                if if_missing_keyframe[0] in keyframe_querry_list:
-                    start_index = keyframe_querry_list.index(if_missing_keyframe[0])
-                    employed_keyframes_list = [keyframe for keyframe in allKeyframes[start_index:]]
-                else:
-                    start_index = bisect(keyframe_querry_list,if_missing_keyframe[0])
-                    employed_keyframes_list = [keyframe for keyframe in allKeyframes[start_index:]]
+                all_selected_keyframes.extend(selected_keyframes)
+                all_keyframes_list.extend(all_keyframes)
             except:
-                print('Exceptin!')
+                pass
 
-            #========== keyframe job assingment =========
-            distance_to_time = time_position - if_missing_keyframe[0]
-            to_move = distance_to_time
+        all_selected_keyframes = list(set(all_selected_keyframes))
+        all_selected_keyframes.sort()
+        all_keyframes_list = list(set(all_keyframes_list))
+        all_keyframes_list.sort()
 
-            if to_move > 0:
-                while employed_keyframes_list:
-                    employed_keyframes_list.reverse()
-                    employed_keyframes_list[0].co[0] += to_move
-                    employed_keyframes_list[0].handle_left[0] += to_move
-                    employed_keyframes_list[0].handle_right[0] += to_move
-                    del employed_keyframes_list[0]
-            else:
-                while employed_keyframes_list:
-                    employed_keyframes_list[0].co[0] += to_move
-                    employed_keyframes_list[0].handle_left[0] += to_move
-                    employed_keyframes_list[0].handle_right[0] += to_move
-                    del employed_keyframes_list[0]
+        # =============== Create all keyframes frame/keyframe list of tuples population =============
+        all_keyframes_pos_population = {}
+        for key in all_keyframes_list:
+            all_keyframes_pos_population[key] = []
+        for fcurve in fc:
+            fc_all_keys = [keyframe for keyframe in fcurve.keyframe_points]
+            for keyframe in fc_all_keys:
+                if keyframe.co[0] in all_keyframes_pos_population.keys():
+                    all_keyframes_pos_population[keyframe.co[0]].append(keyframe)
 
+        all_keyframes_pos_population_list = [(k, v) for k, v in all_keyframes_pos_population.items()]
+        all_keyframes_pos_population_list.sort()
 
+        # ============= Create keyframe employment list =========
+        employed_keyframes_list = []
+        index = 0
+        # while all_selected_keyframes:
+        for item in all_keyframes_pos_population_list:
+            try:
+                if all_selected_keyframes[0] == item[0]:
+                    # employed_keyframes_list.extend(item[1])
+                    index = all_keyframes_pos_population_list.index(item)
+            except:
+                print('exception!')
+        print(index)
+        for item in all_keyframes_pos_population_list[index:]:
+            employed_keyframes_list.extend(item[1])
+        print(employed_keyframes_list)
+        # ============== Getting distance difference =====================
+        distance_to_time = time_position - employed_keyframes_list[0].co[0]
+        to_move = distance_to_time
+        print(distance_to_time)
+
+        # ============== Task assignment to employees =====================
+        if to_move > 0:
+            employed_keyframes_list.reverse()
+            while employed_keyframes_list:
+                employed_keyframes_list[0].co[0] += to_move
+                employed_keyframes_list[0].handle_left[0] += to_move
+                employed_keyframes_list[0].handle_right[0] += to_move
+                del employed_keyframes_list[0]
+
+        else:
+            while employed_keyframes_list:
+                employed_keyframes_list[0].co[0] += to_move
+                employed_keyframes_list[0].handle_left[0] += to_move
+                employed_keyframes_list[0].handle_right[0] += to_move
+                del employed_keyframes_list[0]
 
 
 #=============== Operators ====================
