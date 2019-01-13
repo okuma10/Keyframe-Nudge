@@ -1,7 +1,7 @@
 bl_info = {
     "name" : "Keyframe Nudge",
     "author" : "blenderID:okuma_10",
-    "version" : (0, 3, 5),
+    "version" : (0, 3, 6),
     "location" : "Graph Editor > N - hotkey ",
     "description" : "Various automate keyframe manipulation scripts",
     "support" : "COMMUNITY",
@@ -140,204 +140,196 @@ def keyframe_nudge(usr_inp):
 
 
 def hold_keyframe_for(usr_inp):
-    selected = bpy.context.selected_objects
+    #================================== GET SELECTED OBJECTS ==========================================
+    selected_objects = bpy.context.selected_objects
+
+    #================================ DEFINE GLOBAL VARIABLES =========================================
     control = usr_inp
-
-    for obj in selected:
-        print('{:=^40}'.format(' START '))
-
-        anim = obj.animation_data
+    Global_all_keyframe_co0 = []                 # list of all keyframes 0-coordinates - frame numbers.
+    Global_all_selected_keyframes_co0 = []       # list of all selected keyframes 0-coordinates-frames.
+    Global_all_keyframes = {}                    # dictionary('map') of all keyframes frames/keyframes.
+    Global_non_selected_after_selected = []      # list of all frame/keyframe tuples after last
+                                                 #                                   selected keyframe.
+    employee_list = []                           # list of all frame/keyframe tuples to be modified.
+    employee_tasks = []                          # tuple frame/projection for keyframe position change.
+    #============================= GET ALL INITIAL KEYFRAME DATA ======================================
+    for object in selected_objects:
+        anim = object.animation_data
         fcurves = [fc for fc in anim.action.fcurves]
-        keyframes_list = []
-        non_selected_keyframes = []
-        all_keyframes_global = []
+        loc_all_keyframe_positions = [keyframe.co[0] for fc in fcurves for keyframe in fc.keyframe_points]
+        loc_all_selected_keyframe_positions = [keyframe.co[0] for fc in fcurves for keyframe in fc.keyframe_points if keyframe.select_control_point]
 
-        # ============ Getting list of the frames that we have keyframes for - globaly ==================================
-        for fc in fcurves:
-            all_keyframes = [keyframe.co[0] for keyframe in fc.keyframe_points] #<--hitchhikes this itteration
-            fc_selected_keyframes = [keyframe.co[0] for keyframe in fc.keyframe_points if keyframe.select_control_point]
-            try:
-                keyframes_list.extend(fc_selected_keyframes)
-                all_keyframes_global.extend(all_keyframes)
-            except:
-                pass
-        keyframes_list = list(set(keyframes_list)) #<----- remove duplicates
-        all_keyframes_global = list(set(all_keyframes_global))
-        all_keyframes_global.sort()
+        #=============================== populate lists ===========================================
+        Global_all_keyframe_co0.extend(loc_all_keyframe_positions)
+        Global_all_selected_keyframes_co0.extend(loc_all_selected_keyframe_positions)
+    #==================================== CLEAN UP LISTS ==============================================
+    Global_all_keyframe_co0 = list(set(Global_all_keyframe_co0))
+    Global_all_selected_keyframes_co0 = list(set(Global_all_selected_keyframes_co0))
+    Global_all_keyframe_co0.sort()
+    Global_all_selected_keyframes_co0.sort()
 
-        #============ Creating list of frame/keyframe tuples of non selected keyframes after selected ====================
-        last_index = all_keyframes_global.index(keyframes_list[-1])
-        non_selected_keyframes = [keyframe for keyframe in all_keyframes_global[last_index+1:]]
-        avoiding_keyframes = {}
-        for key in non_selected_keyframes:
-            avoiding_keyframes[key] = []
+    #=============================== PREPARE ALL KEYFRAMES MAP ========================================
+    for frame in Global_all_keyframe_co0:
+        Global_all_keyframes[frame] = []
 
-        for fc in fcurves:
-            fc_all_keyframes = [keyframe for keyframe in fc.keyframe_points]
-            for keyframe in fc_all_keyframes:
-                if keyframe.co[0] in avoiding_keyframes.keys():
-                    avoiding_keyframes[keyframe.co[0]].append(keyframe)
+    #=============================== POPULATE ALL KEYFRAME MAP ========================================
+    for object in selected_objects:
+        anim = object.animation_data
+        fcurves = [fc for fc in anim.action.fcurves]
+        local_all_keyframes = [keyframe for fc in fcurves for keyframe in fc.keyframe_points]
 
-        avoiding_keyframes_list = [(k,v) for k,v in avoiding_keyframes.items()]
-        avoiding_keyframes_list.sort() #<---------------- we now have a workable frame/list of keyframes to push away
+        #============================ append keyframes to map =====================================
+        for keyframe in local_all_keyframes:
+            if keyframe.co[0] in Global_all_keyframes.keys():
+                Global_all_keyframes[keyframe.co[0]].append(keyframe)
+            else: pass
 
-        # =========== Creating dictionary of emploied keyframes at the keyframes_list keyframes ==========================
-        emploied_keyframes = {}
-        for key in keyframes_list:
-            emploied_keyframes[key] = []
+    #========================= CONVERT MAP TO FRAME/KEYFRAME TUPLE LIST ===============================
+    Global_all_keyframes = [(k,v) for k,v in Global_all_keyframes.items()]
+    Global_all_keyframes.sort()
 
-        for fc in fcurves:
-            fc_selected_keyframes = [keyframe for keyframe in fc.keyframe_points if keyframe.select_control_point]
-            for keyframe in fc_selected_keyframes:
-                if keyframe.co[0] in emploied_keyframes.keys():
-                    emploied_keyframes[keyframe.co[0]].append(keyframe)
+    #======================== CREATE NON SELECTED AFTER LAST SELECTED LIST ============================
+    last_selected_index = Global_all_keyframe_co0.index(Global_all_selected_keyframes_co0[-1])
+    Global_non_selected_after_selected.extend(Global_all_keyframes[last_selected_index+1:])
+    #================================= CREATE EMPLOYEE LIST ===========================================
+    first_selected_index = Global_all_keyframe_co0.index(Global_all_selected_keyframes_co0[0])
+    employee_list = Global_all_keyframes[first_selected_index:last_selected_index+1]
 
-        emploied_keyframes_list = [(k,v) for k,v in emploied_keyframes.items()]
-        emploied_keyframes_list.sort() #<------------------------ we now have workable frame/list of keyframes to work with!
-
-        #===================== Creating keyframe frame/projection tuple list ==============================================
-        keyframes_list.sort()
-        completed_list = []
-        projection = 0.0
-        projected_list = []
-        projected_list.append(keyframes_list[0])
-        while keyframes_list:
-            if len(keyframes_list)>1:
-                try:
-                    current_distance = keyframes_list[1] - projected_list[-1]
-                except:
-                    print('exception occured!!')
-
-                to_move = control - current_distance
-                projection = keyframes_list[1] + to_move
-
-
-            elif len(keyframes_list) == 1: #at the end there is duplication of the last frame projection,this avoids it
-                break
-
-            projected_list.append(projection)
-
-            completed_list.append(keyframes_list.pop(0))
-        completed_list.append(keyframes_list.pop(0)) #<------get last number
-
-        projection_coordinates = list(zip(completed_list,projected_list)) #<---- we now have tuple list with keyframe's frame
-                                                                                                     #  and it's new position
-        #=========================== Task asignment to employee list =======================================================
-        #====================push away non selected keyframes after last selected keyframe==================================
-        captrue_avoiding_keyframes_list = []
+    #======================= CREATE PROJECTION FRAME/PROJECTION TUPLE LIST ============================
+    employee_pos = [item[0] for item in employee_list ]
+    temp_list = []
+    projection = []
+    while employee_pos:
+        distance = 0
+        temp_projection = 0
+        to_move = 0
         try:
-            distance_from_projection = avoiding_keyframes_list[0][0] - projection_coordinates[-1][1]
-            new_first_position = projection_coordinates[-1][1] + control
-            to_move = new_first_position - avoiding_keyframes_list[0][0]
-
-            if distance_from_projection < 0:
-                avoiding_keyframes_list.reverse()
-                while avoiding_keyframes_list:
-                    for keyframe in avoiding_keyframes_list[0][1]:
-                        keyframe.co[0] += to_move
-                        keyframe.handle_left[0] += to_move
-                        keyframe.handle_right[0] += to_move
-                    captrue_avoiding_keyframes_list.append(avoiding_keyframes_list.pop(0))
-            else:
-                while avoiding_keyframes_list:
-                    for keyframe in avoiding_keyframes_list[0][1]:
-                        keyframe.co[0] += to_move
-                        keyframe.handle_left[0] += to_move
-                        keyframe.handle_right[0] += to_move
-                    captrue_avoiding_keyframes_list.append(avoiding_keyframes_list.pop(0))
+            if len(projection) == 0:
+                projection.append(employee_pos[0])
+                temp_list.append(employee_pos.pop(0))
+            if len(projection) == 1:
+                distance = employee_pos[0] - projection[0]
+                to_move = control - (distance)
+                temp_projection = employee_pos[0] + to_move
+                projection.append(temp_projection)
+                temp_list.append(employee_pos.pop(0))
+            if len(projection) > 1:
+                distance = employee_pos[0] - projection[-1]
+                to_move = control - (distance)
+                temp_projection = employee_pos[0] + to_move
+                projection.append(temp_projection)
+                temp_list.append(employee_pos.pop(0))
         except:
-            pass
+            print('Exception')
 
-        #========================== give the tasks to the employee keyframes ==============================================
-        capture_projection_coordinates = []
-        while projection_coordinates:
-            if projection_coordinates[0][0] == emploied_keyframes_list[0][0]:
-                for keyframe in emploied_keyframes_list[0][1]:
-                    to_move = projection_coordinates[0][1] - projection_coordinates[0][0]
-                    keyframe.co[0] = projection_coordinates[0][1]
+    employee_pos.extend(temp_list)
+    temp_list.clear()
+    employee_tasks = [(f,p) for f,p in zip(employee_pos,projection)]
+
+    #======================== MOVE NON SELECTED AFTER SELECTED KEYFEAMES ===============================
+    try:
+        distance =  Global_non_selected_after_selected[0][0] - employee_tasks[-1][1]
+        to_move = control - (distance)
+        while Global_non_selected_after_selected:
+            if control > 0 :
+                Global_non_selected_after_selected.reverse()
+                for keyframe in Global_non_selected_after_selected[0][1]:
+                    keyframe.co[0] += to_move
                     keyframe.handle_left[0] += to_move
                     keyframe.handle_right[0] += to_move
-            capture_projection_coordinates.append(projection_coordinates.pop(0))
-            del emploied_keyframes_list[0]
+                temp_list.append(Global_non_selected_after_selected.pop(0))
+            else:
+                for keyframe in Global_non_selected_after_selected[0][1]:
+                    keyframe.co[0] += to_move
+                    keyframe.handle_left[0] += to_move
+                    keyframe.handle_right[0] += to_move
+                temp_list.append(Global_non_selected_after_selected.pop(0))
+    except:
+        print('All keyframes are selected')
+    #=============================== ASSIGN PROJECTION TO EMPLOYEES =====================================
+    while employee_list:
+        move_handle = employee_tasks[0][1] - employee_tasks[0][0]
+
+        for keyframe in employee_list[0][1]:
+            keyframe.co[0] = employee_tasks[0][1]
+            keyframe.handle_left[0] += move_handle
+            keyframe.handle_right[0] += move_handle
+        del employee_tasks[0]
+        del employee_list[0]
 
 
 def come_over_here_nudge():
-    selected = bpy.context.selected_objects
+    # ========================== GET SELECTED OBJECTS ===========================
+    selected_objects = bpy.context.selected_objects
 
-    for obj in selected:
-        anim = obj.animation_data
+    # ========================= DEFINE GLOBAL VARIABLES =========================
+    Global_keyframe_positions = []  # list of frames that we have keyframes on
+    Global_all_keyframes = {}  # dictionary map of all keyframes based on their frame position
+    Global_all_selected_keyframes = []  # list of all selected keyframes's frame positions
+    current_timeline_position = bpy.context.scene.frame_current  # get current time position
+    employe_list = []  # list of all keyframes that will be modified
 
-        print('{:=^40}'.format(' START '))
-        # ========= Get initial data and define global variables ==============
-        fc = [fc for fc in anim.action.fcurves]
-        time_position = bpy.context.scene.frame_current
-        all_selected_keyframes = []
-        all_keyframes_list = []
-
-        # ====== get selected keyframe frame position =========
-        for fcurve in fc:
-            all_keyframes = [keyframe.co[0] for keyframe in fcurve.keyframe_points]
-            selected_keyframes = [keyframe.co[0] for keyframe in fcurve.keyframe_points if
+    # ======================= GET KEYFRAME FRAME POSITIONS ======================
+    for object in selected_objects:
+        anim = object.animation_data
+        fcurves = [fcurve for fcurve in anim.action.fcurves]
+        all_keyframes = [keyframe.co[0] for fc in fcurves for keyframe in fc.keyframe_points]
+        all_selected_keyframes = [keyframe.co[0] for fc in fcurves for keyframe in fc.keyframe_points if
                                   keyframe.select_control_point]
-            try:
-                all_selected_keyframes.extend(selected_keyframes)
-                all_keyframes_list.extend(all_keyframes)
-            except:
-                pass
 
-        all_selected_keyframes = list(set(all_selected_keyframes))
-        all_selected_keyframes.sort()
-        all_keyframes_list = list(set(all_keyframes_list))
-        all_keyframes_list.sort()
+        Global_all_selected_keyframes.extend(all_selected_keyframes)
+        Global_keyframe_positions.extend(all_keyframes)
 
-        # =============== Create all keyframes frame/keyframe list of tuples population =============
-        all_keyframes_pos_population = {}
-        for key in all_keyframes_list:
-            all_keyframes_pos_population[key] = []
-        for fcurve in fc:
-            fc_all_keys = [keyframe for keyframe in fcurve.keyframe_points]
-            for keyframe in fc_all_keys:
-                if keyframe.co[0] in all_keyframes_pos_population.keys():
-                    all_keyframes_pos_population[keyframe.co[0]].append(keyframe)
+    # =============================== CLEAN UP LISTS =================================
+    Global_keyframe_positions = list(set(Global_keyframe_positions))
+    Global_keyframe_positions.sort()
 
-        all_keyframes_pos_population_list = [(k, v) for k, v in all_keyframes_pos_population.items()]
-        all_keyframes_pos_population_list.sort()
+    Global_all_selected_keyframes = list(set(Global_all_selected_keyframes))
+    Global_all_selected_keyframes.sort()
 
-        # ============= Create keyframe employment list =========
-        employed_keyframes_list = []
-        index = 0
-        # while all_selected_keyframes:
-        for item in all_keyframes_pos_population_list:
-            try:
-                if all_selected_keyframes[0] == item[0]:
-                    # employed_keyframes_list.extend(item[1])
-                    index = all_keyframes_pos_population_list.index(item)
-            except:
-                print('exception!')
-        print(index)
-        for item in all_keyframes_pos_population_list[index:]:
-            employed_keyframes_list.extend(item[1])
-        print(employed_keyframes_list)
-        # ============== Getting distance difference =====================
-        distance_to_time = time_position - employed_keyframes_list[0].co[0]
-        to_move = distance_to_time
-        print(distance_to_time)
+    # ==================== PEPARE DICTIONARY MAP OF ALL KEYFRAMES ====================
+    for frame in Global_keyframe_positions:
+        Global_all_keyframes[frame] = []
+    # ================================= POPULATE MAP =================================
+    for object in selected_objects:
+        anim = object.animation_data
+        fcurves = [fcurve for fcurve in anim.action.fcurves]
+        all_keyframes = [keyframe for fc in fcurves for keyframe in fc.keyframe_points]
 
-        # ============== Task assignment to employees =====================
-        if to_move > 0:
-            employed_keyframes_list.reverse()
-            while employed_keyframes_list:
-                employed_keyframes_list[0].co[0] += to_move
-                employed_keyframes_list[0].handle_left[0] += to_move
-                employed_keyframes_list[0].handle_right[0] += to_move
-                del employed_keyframes_list[0]
+        for keyframe in all_keyframes:
+            if keyframe.co[0] in Global_all_keyframes.keys():
+                Global_all_keyframes[keyframe.co[0]].append(keyframe)
 
-        else:
-            while employed_keyframes_list:
-                employed_keyframes_list[0].co[0] += to_move
-                employed_keyframes_list[0].handle_left[0] += to_move
-                employed_keyframes_list[0].handle_right[0] += to_move
-                del employed_keyframes_list[0]
+    # ================= CONVERT MAP TO LIST OF TUPLES (frame/keyframe) ================
+    Global_all_keyframes = [(k, v) for k, v in Global_all_keyframes.items()]
+    Global_all_keyframes.sort()
+
+    # ========================= CREATE EMPLOYE LIST ===================================
+    first_selected_index = 0
+    for item in Global_all_keyframes:
+        if Global_all_selected_keyframes[0] == item[0]:
+            first_selected_index = Global_all_keyframes.index(item)
+    employe_list.extend(Global_all_keyframes[first_selected_index:])
+
+    # ====================== GET DISTANCE TO TIME POSITION ============================
+    distance = current_timeline_position - Global_all_selected_keyframes[0]  # this can be used directly for moving
+
+    # ========================== EMPLOYE JOB ASSIGNMENT ===============================
+    if distance > 0:
+        employe_list.reverse()
+        while employe_list:
+            for keyframe in employe_list[0][1]:
+                keyframe.co[0] += distance
+                keyframe.handle_left[0] += distance
+                keyframe.handle_right[0] += distance
+            del employe_list[0]
+    else:
+        while employe_list:
+            for keyframe in employe_list[0][1]:
+                keyframe.co[0] += distance
+                keyframe.handle_left[0] += distance
+                keyframe.handle_right[0] += distance
+            del employe_list[0]
 
 
 #=============== Operators ====================
