@@ -1,7 +1,7 @@
 bl_info = {
     "name" : "Keyframe Nudge",
     "author" : "blenderID:okuma_10",
-    "version" : (0, 3, 6),
+    "version" : (0, 4, 0),
     "blender" : (2, 80, 0),
     "description" : "Various automate keyframe manipulation scripts",
     "support" : "COMMUNITY",
@@ -332,6 +332,106 @@ def come_over_here_nudge():
             del employe_list[0]
 
 
+def add_inbetween(inputpercent):
+    def get_next_closest(inplist,query):
+        next_closest = min([n for n in inplist if n > query])
+        return next_closest
+    def get_previous_closest(inplist,query):
+        previous_closest = max([n for n in inplist if n<query])
+        return previous_closest
+    def get_value(min_val,max_val,percent):
+        out_value = (percent * (max_val - min_val)) + min_val
+        return out_value
+
+    percent = inputpercent
+    selected = bpy.context.selected_objects
+    current_time = bpy.context.scene.frame_current
+    for object in selected:
+        anim = object.animation_data
+        fcurves = [fcurve for fcurve in anim.action.fcurves]
+        for fcurve in fcurves:
+            all_keyframes_querry = [keyframe.co[0] for keyframe in fcurve.keyframe_points]
+            all_keyframes = [keyframe for keyframe in fcurve.keyframe_points]
+            selected_keyframes = [keyframe for keyframe in fcurve.keyframe_points if keyframe.select_control_point]
+
+            next_key = get_next_closest(all_keyframes_querry, current_time)
+            next_index = all_keyframes_querry.index(next_key)
+            previous_key = get_previous_closest(all_keyframes_querry, current_time)
+            previous_index = all_keyframes_querry.index(previous_key)
+
+            #==========================   IF WE HAVE ONE KEYFRAME SELECTED PER FCURVE ================================
+            if len(selected_keyframes) == 1:
+
+                inbetween_co1 = get_value(all_keyframes[previous_index].co[1], all_keyframes[next_index].co[1], percent)
+                selected_index = all_keyframes_querry.index(selected_keyframes[0].co[0])
+
+                # y = mx + c     # find a parallel line to prev-next keyframe line passing trough the new keyframe.co
+                m = (all_keyframes[previous_index].co[1] - all_keyframes[next_index].co[1]) / (all_keyframes[previous_index].co[0] - all_keyframes[next_index].co[0])  # m = (y1-y2)/(x1-x2)
+                c = all_keyframes[selected_index].co[1] - m * all_keyframes[selected_index].co[0]
+                handle_left_co = []
+                handle_right_co = []
+                # ===================================== HANDLE LEFT CO ========================================================================
+                h_left_x = ((all_keyframes[selected_index].co[0] - all_keyframes[previous_index].co[0]) * 0.75) + all_keyframes[previous_index].co[0]
+                handle_left_co.append(h_left_x)
+                h_left_y = (m * h_left_x) + c
+                handle_left_co.append(h_left_y)
+                # ==================================== HANDLE RIGHT CO =======================================================================
+                h_right_x = ((all_keyframes[next_index].co[0] - all_keyframes[selected_index].co[0]) * 0.25) + all_keyframes[selected_index].co[0]
+                handle_right_co.append(h_right_x)
+                h_right_y = (m * h_right_x) + c
+                handle_right_co.append(h_right_y)
+
+                # ================================== MANIPULATE KEYFRAME ===============================================
+                all_keyframes[selected_index].co[1] = inbetween_co1
+                all_keyframes[selected_index].handle_left[0] = float(handle_left_co[0])
+                all_keyframes[selected_index].handle_left[1] = float(handle_left_co[1])
+                all_keyframes[selected_index].handle_right[0] = float(handle_right_co[0])
+                all_keyframes[selected_index].handle_right[1] = float(handle_right_co[1])
+
+
+            elif len(selected_keyframes) == 2:
+                pass
+
+            elif len(selected_keyframes)>2:
+                break
+
+            # ================================ IF WE HAVE NO KEYFRAME SELECTED =========================================
+            else:
+                next_key = get_next_closest(all_keyframes_querry,current_time)
+                next_index = all_keyframes_querry.index(next_key)
+                previous_key = get_previous_closest(all_keyframes_querry,current_time)
+                previous_index = all_keyframes_querry.index(previous_key)
+                inbetween_co0 = ((all_keyframes[next_index].co[0] - all_keyframes[previous_index].co[0])/2)+all_keyframes[previous_index].co[0]
+                inbetween_co1 = get_value(all_keyframes[previous_index].co[1],all_keyframes[next_index].co[1],percent)
+
+            # ===================================== FIND HANDLES CO ====================================================
+
+                # y = mx + c     # find a parallel line to prev-next keyframe line passing trough the new keyframe.co
+                m = (all_keyframes[previous_index].co[1] - all_keyframes[next_index].co[1]) / (all_keyframes[previous_index].co[0] - all_keyframes[next_index].co[0])  # m = (y1-y2)/(x1-x2)
+                c = inbetween_co1 - m * inbetween_co0
+                handle_left_co = []
+                handle_right_co = []
+                # ===================================== HANDLE LEFT CO ========================================================================
+                h_left_x = ((inbetween_co0 - all_keyframes[previous_index].co[0]) * 0.75) + all_keyframes[previous_index].co[0]
+                handle_left_co.append(h_left_x)
+                h_left_y = (m * h_left_x) + c
+                handle_left_co.append(h_left_y)
+                # ==================================== HANDLE RIGHT CO =======================================================================
+                h_right_x = ((all_keyframes[next_index].co[0] - inbetween_co0) * 0.25) + inbetween_co0
+                handle_right_co.append(h_right_x)
+                h_right_y = (m * h_right_x) + c
+                handle_right_co.append(h_right_y)
+
+                bpy.context.scene.frame_set(inbetween_co0)
+                new_key = fcurve.keyframe_points.insert(inbetween_co0,inbetween_co1, options={'FAST'})
+                new_key.handle_right[0] = h_right_x
+                new_key.handle_right[1] = h_right_y
+                new_key.handle_left[0] = h_left_x
+                new_key.handle_left[1] = h_left_y
+                fcurve.update()
+
+
+
 #=============== Operators ====================
 #                   |
 class KFN_OT_Insert_empty_Frame(bpy.types.Operator):
@@ -383,6 +483,20 @@ class KFN_OT_Come_Over_Here(bpy.types.Operator):
         come_over_here_nudge()
         return {'FINISHED'}
 
+
+class KFN_OT_Add_Inbetween(bpy.types.Operator):
+
+    bl_idname = "nudge.kfn_ot_add_inbetween"
+    bl_label = "Add Inbetween"
+
+    user_input = bpy.props.FloatProperty()
+
+    def execute(self,context):
+        user_input = self.user_input
+        add_inbetween(user_input)
+        return {'FINISHED'}
+
+
 #============== UI Panel ====================
 #                 |
 class KFN_PT_Keyframe_Nudge_Panel(bpy.types.Panel):
@@ -393,6 +507,11 @@ class KFN_PT_Keyframe_Nudge_Panel(bpy.types.Panel):
     bl_region_type = 'UI'
     bl_category = 'Nudge_keyframes'
 
+    def update_inbetween(self,context):
+        percent = self.slider
+        bpy.ops.nudge.kfn_ot_add_inbetween(user_input=percent)
+
+    bpy.types.Scene.slider =  bpy.props.FloatProperty(name="inbetween",min=0,max=1, update=update_inbetween)
     bpy.types.Scene.nudge_driver = bpy.props.IntProperty(default=2,min=1,max=24)
 
 
@@ -426,11 +545,15 @@ class KFN_PT_Keyframe_Nudge_Panel(bpy.types.Panel):
         row.operator('nudge.kfn_ot_hold_for',text='Hold For').nudge_input = context.scene.nudge_driver
         row.label(text='')
 
+        row = layout.row()
+        row.prop(context.scene, 'slider', slider=True)
+
 classes = (
     KFN_OT_Insert_empty_Frame,
     KFN_OT_Keyframe_Nudge,
     KFN_OT_Hold_Keyframe_For,
     KFN_OT_Come_Over_Here,
+    KFN_OT_Add_Inbetween,
     KFN_PT_Keyframe_Nudge_Panel)
 
 register, unregister = bpy.utils.register_classes_factory(classes)
