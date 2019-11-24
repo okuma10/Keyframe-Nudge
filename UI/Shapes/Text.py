@@ -9,15 +9,15 @@ for up_dir in tree_dir:
     if up_dir.name == "BlenderDrawDev":
         root_dir = up_dir
     else:pass
-parent = str(root_dir)
-log_file  = parent+r'\Logs\Shapes'
+parent = str(Path(__file__).parent)
+log_file  = parent + '\\Logs\\Shapes'
 
 
 #n Text Object
 class Text:
     def __init__(self,font,type,size):
 
-        dir = r'\UI\Fonts\\'
+        dir = '\\UI\\Fonts\\'
         font1 = 'EXO2.0-'
         font2 = 'bonn_'
         bold = 'Bold'
@@ -34,28 +34,28 @@ class Text:
         filepath = None
         if font == 'Exo':
             if type == 'Bold':
-                filepath = parent + dir + font1 + bold + format[0]
+                filepath = parent[:-10] + dir + font1 + bold + format[0]
                 self.font_info['loaded_font'] = filepath
             elif type == 'ExtraBold':
-                filepath = parent + dir + font1 + extraBold + format[0]
+                filepath = parent[:-10] + dir + font1 + extraBold + format[0]
                 self.font_info['loaded_font'] = filepath
             elif type == 'Regular':
-                filepath = parent + dir + font1 + regular + format[0]
+                filepath = parent[:-10] + dir + font1 + regular + format[0]
                 self.font_info['loaded_font'] = filepath
             elif type == 'Light':
-                filepath = parent + dir + font1 + light + format[0]
+                filepath = parent[:-10] + dir + font1 + light + format[0]
                 self.font_info['loaded_font'] = filepath
 
         elif font == 'Bonn':
             if type == 'Bold':
-                filepath = parent + dir + font2 + bold + format[1]
+                filepath = parent[:-10] + dir + font2 + bold + format[1]
             elif type == 'ExtraBold':
                 print('This font does not have Extra Bold')
                 filepath = None
             elif type == 'Regular':
-                filepath = parent + dir + font2 + regular + format[1]
+                filepath = parent[:-10] + dir + font2 + regular + format[1]
             elif type == 'Light':
-                filepath = parent + dir + font2 + light + format[1]
+                filepath = parent[:-10] + dir + font2 + light + format[1]
 
         self.parent = Vector3([0,0,0])
         self.position = Vector3([0,0,0])

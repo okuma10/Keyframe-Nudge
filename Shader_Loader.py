@@ -5,12 +5,12 @@ import numpy as np
 # from OpenGL.GL import *
 
 parents = Path(__file__).parents
-root_dir = None
-for parent in parents:
-    if parent.name == "BlenderDrawDev":
-        root_dir = str(parent)
-print(root_dir)
-log_file = root_dir + r'/UI/Shaders/shader.log'
+root_dir = Path(__file__).parent
+# for parent in parents:
+#     if parent.name == "BlenderDrawDev":
+#         root_dir = str(parent)
+# print(root_dir)
+log_file = str(root_dir) + '\\UI\\Shaders\\shader.log'
 shader_log = Logger.Log(log_file)
 shader_log.clearFile()
 
