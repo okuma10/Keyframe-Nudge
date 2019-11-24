@@ -1,0 +1,43 @@
+	l1 ----------- Compiling Shader -----------
+	l1 ....... vertex : flat_vertex.glsl.......
+	l1 .... fragment : flat_fragment.glsl .....
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------
+	l1 -----------------Start------------------
+	l1 ----------- Compiling Shader -----------
+	l1  vertex : BlenderDrawDev/Shaders/flat_vertex.glsl
+	l1  fragment : BlenderDrawDev/Shaders/flat_fragment.glsl 
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------
+	l1 ----------- Compiling Shader -----------
+	l1  vertex : BlenderDrawDev/Shaders/flat_vertex.glsl
+	l1  fragment : BlenderDrawDev/Shaders/flat_fragment.glsl 
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------
+	l1 ----------- Compiling Shader -----------
+	l1  vertex : BlenderDrawDev/Shaders/flat_vertex.glsl
+	l1  fragment : BlenderDrawDev/Shaders/flat_fragment.glsl 
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------
+	l1 ----------- Compiling Shader -----------
+	l1  vertex : BlenderDrawDev/Shaders/flat_vertex.glsl
+	l1  fragment : BlenderDrawDev/Shaders/flat_fragment.glsl 
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------
+	l1 ----------- Compiling Shader -----------
+	l1  vertex : BlenderDrawDev/Shaders/flat_vertex.glsl
+	l1  fragment : BlenderDrawDev/Shaders/flat_fragment.glsl 
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------
