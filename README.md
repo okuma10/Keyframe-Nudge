@@ -2,7 +2,7 @@
 Blender scripts for quick keyframe maniplation.  
 With dedicated OpenGL UI in 3d Viewport.
 ## Installing
-
+nothing yet
 
 ## UI
 * __Tool State Button__ - Changes the types of scripts related to the main buttons.  
