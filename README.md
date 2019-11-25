@@ -27,7 +27,7 @@ __Grease__ - scripts that work with Grease Pencil keyframes
 ![Plus Minus Button](imgs/Plus-Minus_buttons.png)
 * __'+' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change + _time_
 * __'-' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change - _time_  
-  --------
+--------
 
 ![Number Field](imgs/Value_Input_field.png)
 * __Number Field__ - select value for Push\Pull,Nudge,Hold For scripts.  
@@ -42,16 +42,16 @@ __Grease__ - scripts that work with Grease Pencil keyframes
 
 ![Hold For Button](imgs/Hold_For-Button.png)
 * __Hold For Button__ - Executes 'Hold For' script with the value from 'Number Field'.  
-  --------
+--------
 
 ![Come_Over Button](imgs/ComeOver_Button.png)
 * __Come Over Button__ - Executed 'Come Over' Script  
-  -------
+-------
 
 ![Inbetween Slider](imgs/Inbetween_Slider.png)
 * __Inbetween Slider__ - When click or click and drag executes 'Inbetween' Script
-  
-====================
+
+============================================
 ## Scripts
 ### Keyframe
 Scripts work with regular keyframes for objects in object mode and bones in pose mode.
