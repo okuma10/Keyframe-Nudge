@@ -18,16 +18,16 @@ __Grease__ - scripts that work with Grease Pencil keyframes
 
 ![Push Pull](imgs/Push-PullButton.png)
 * __Push\Pull - Nudge Button__ - Changes the mode of the '+,-' buttons  
-
+----------
 
 ![Frames-Seconds](imgs/Frames-Seconds_button.png)
 * __Frames-Seconds Button__ - Changes number field's input mode from frames to seconds  
- 
+ ---------
 
 ![Plus Minus Button](imgs/Plus-Minus_buttons.png)
 * __'+' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change + _time_
 * __'-' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change - _time_  
-  
+  --------
 
 ![Number Field](imgs/Value_Input_field.png)
 * __Number Field__ - select value for Push\Pull,Nudge,Hold For scripts.  
@@ -38,20 +38,20 @@ __Grease__ - scripts that work with Grease Pencil keyframes
         * __Keyboard 0-9 and Numpad 0-9__ - adds numbers to value.
         * __Keyboard '.'__ - when mode is seconds, user can give float(decimal) values to final value(precision- one decimal value, example - 22.5).
         * __Enter(Return,Numpad Enter)__ - exits edit mode.  
-  
+---------
 
 ![Hold For Button](imgs/Hold_For-Button.png)
 * __Hold For Button__ - Executes 'Hold For' script with the value from 'Number Field'.  
-  
+  --------
 
 ![Come_Over Button](imgs/ComeOver_Button.png)
 * __Come Over Button__ - Executed 'Come Over' Script  
-  
+  -------
 
 ![Inbetween Slider](imgs/Inbetween_Slider.png)
 * __Inbetween Slider__ - When click or click and drag executes 'Inbetween' Script
   
-
+====================
 ## Scripts
 ### Keyframe
 Scripts work with regular keyframes for objects in object mode and bones in pose mode.
