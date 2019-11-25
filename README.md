@@ -29,7 +29,7 @@ __Grease__ - scripts that work with Grease Pencil keyframes
 * __'-' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change - _time_  
 --------
 
-![Number Field](imgs/Value_Input_field.png)
+![Number Field](imgs/Value_Input_Field.png)
 * __Number Field__ - select value for Push\Pull,Nudge,Hold For scripts.  
     * __'<>' Buttons__ increase or decrease value on click.  
 
