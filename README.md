@@ -13,13 +13,17 @@ __Grease__ - scripts that work with Grease Pencil keyframes
 
 ![Position Control](imgs/Translate_Panel.png)
 * __Panel position control__ - Changes position of panel in 3d Viewport  
+
 ![Push Pull](imgs/Push-PullButton.png)
 * __Push\Pull - Nudge Button__ - Changes the mode of the '+,-' buttons  
+
 ![Frames-Seconds](imgs/Frames-Seconds_button.png)
 * __Frames-Seconds Button__ - Changes number field's input mode from frames to seconds  
+
 ![Plus Minus Button](imgs/Plus-Minus_buttons.png)
 * __'+' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change + _time_
-* __'-' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change - _time_
+* __'-' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change - _time_  
+
 ![Number Field](imgs/Value_Input_field.png)
 * __Number Field__ - select value for Push\Pull,Nudge,Hold For scripts.  
     * __'<>' Buttons__ increase or decrease value on click.  
