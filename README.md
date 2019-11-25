@@ -12,11 +12,11 @@ __Keyframe__ - scripts that work with regular keyframes
 __Grease__ - scripts that work with Grease Pencil keyframes  
 
 ![Position Control](imgs/Translate_Panel.png)
-* __Panel position control__ - Changes position of panel in 3d Viewport
+* __Panel position control__ - Changes position of panel in 3d Viewport  
 ![Push Pull](imgs/Push-PullButton.png)
-* __Push\Pull - Nudge Button__ - Changes the mode of the '+,-' buttons
+* __Push\Pull - Nudge Button__ - Changes the mode of the '+,-' buttons  
 ![Frames-Seconds](imgs/Frames-Seconds_button.png)
-* __Frames-Seconds Button__ - Changes number field's input mode from frames to seconds
+* __Frames-Seconds Button__ - Changes number field's input mode from frames to seconds  
 ![Plus Minus Button](imgs/Plus-Minus_buttons.png)
 * __'+' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change + _time_
 * __'-' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change - _time_
