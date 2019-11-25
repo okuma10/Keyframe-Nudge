@@ -10,11 +10,11 @@ nothing yet
 * __Tool State Button__ - Changes the types of scripts related to the main buttons.  
 __Keyframe__ - scripts that work with regular keyframes  
 __Grease__ - scripts that work with Grease Pencil keyframes  
-  
+---------  
 
 ![Position Control](imgs/Translate_Panel.png)
 * __Panel position control__ - Changes position of panel in 3d Viewport  
-  
+----------  
 
 ![Push Pull](imgs/Push-PullButton.png)
 * __Push\Pull - Nudge Button__ - Changes the mode of the '+,-' buttons  
