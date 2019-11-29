@@ -6,20 +6,30 @@ With dedicated OpenGL UI in 3d Viewport.
 nothing yet
 
 ## UI
+![State Button](imgs/Panel_Mode.png)
 * __Tool State Button__ - Changes the types of scripts related to the main buttons.  
 __Keyframe__ - scripts that work with regular keyframes  
 __Grease__ - scripts that work with Grease Pencil keyframes  
-**image**
+---------  
 
-* __Panel position control__ - Changes position of panel in 3d Viewport
+![Position Control](imgs/Translate_Panel.png)
+* __Panel position control__ - Changes position of panel in 3d Viewport  
+----------  
 
-* __Push\Pull - Nudge Button__ - Changes the mode of the '+,-' buttons
+![Push Pull](imgs/Push-PullButton.png)
+* __Push\Pull - Nudge Button__ - Changes the mode of the '+,-' buttons  
+----------
 
-* __Frames-Seconds Button__ - Changes number field's input mode from frames to seconds
+![Frames-Seconds](imgs/Frames-Seconds_button.png)
+* __Frames-Seconds Button__ - Changes number field's input mode from frames to seconds  
+ ---------
 
+![Plus Minus Button](imgs/Plus-Minus_buttons.png)
 * __'+' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change + _time_
-* __'-' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change - _time_
+* __'-' Button__ - executes 'Push\Pull' or 'Nudge' scripts with 'Number Field' value, resulting in change - _time_  
+--------
 
+![Number Field](imgs/Value_Input_Field.png)
 * __Number Field__ - select value for Push\Pull,Nudge,Hold For scripts.  
     * __'<>' Buttons__ increase or decrease value on click.  
 
@@ -27,13 +37,21 @@ __Grease__ - scripts that work with Grease Pencil keyframes
         * __Backspace__ - remove number from value.
         * __Keyboard 0-9 and Numpad 0-9__ - adds numbers to value.
         * __Keyboard '.'__ - when mode is seconds, user can give float(decimal) values to final value(precision- one decimal value, example - 22.5).
-        * __Enter(Return,Numpad Enter)__ - exits edit mode.
+        * __Enter(Return,Numpad Enter)__ - exits edit mode.  
+---------
 
-* __Hold For Button__ - Executes 'Hold For' script with the value from 'Number Field'.
-* __Come Over Button__ - Executed 'Come Over' Script
+![Hold For Button](imgs/Hold_For-Button.png)
+* __Hold For Button__ - Executes 'Hold For' script with the value from 'Number Field'.  
+--------
+
+![Come_Over Button](imgs/ComeOver_Button.png)
+* __Come Over Button__ - Executed 'Come Over' Script  
+-------
+
+![Inbetween Slider](imgs/Inbetween_Slider.png)
 * __Inbetween Slider__ - When click or click and drag executes 'Inbetween' Script
 
-
+============================================
 ## Scripts
 ### Keyframe
 Scripts work with regular keyframes for objects in object mode and bones in pose mode.
