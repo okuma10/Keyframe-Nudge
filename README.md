@@ -55,6 +55,7 @@ __Grease__ - scripts that work with Grease Pencil keyframes
 ## Scripts
 ### Keyframe
 Scripts work with regular keyframes for objects in object mode and bones in pose mode.
+**Note** : Scripts that work with `object keyframes`, are selection dependant. So be mindful of your selections.  
 * **Push/Pull** - Pushes or pulls all keyframes based on:
     * Marker Position - when no keyframes are selected
     * Selected Keyframe - from selected keyframe
@@ -73,7 +74,7 @@ Scripts work with regular keyframes for objects in object mode and bones in pose
 
 ### Grease
 Scripts work with `grease pencil keyframes`, found in the grease pencil editor in the Dope Sheet.
-
+**Note** : As with scripts that work with `object keyframes`, scripts that work with `grease pencil keyframes` are dependant on selection. So be mindful of your selections. Blender has the bad habbit of leaving selections active unless user deselects.  
 * [x] Push\Pull  
 * [] Nudge  
 * [] Hold For  
