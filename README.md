@@ -78,3 +78,9 @@ Scripts work with grease pencil keyframes, found in the grease pencil editor in 
 * [] Nudge  
 * [] Hold For  
 * [] Come Over
+
+* **Push\Pull** -  Pushes or pulls all keyframes of a Grease Pencil based on:
+     * **Lock Layer**(for all cases) - Because `grease pencil` scripts work on all `grease pencil` layer of a `grease pencil`, the user can exclude `layers` if he locks the layer.
+     * **No Selected Keyframe** - Pushes or Pulls `keyframes` from `timeline marker's` position to +__time__, by user give value, for all `grease pencils`. If `timeline marker` is over a `keyframe`, that `keyframe` is the starting point of the whole block of `keyframes` that will have their X Position(frame number) modified.
+     * **No Selected Keyframe**(modified) - When there is no keyframe selected, but the user does not want to modify all `grease pencils`, he can select `a grease pencil` layer and the operation will be applied to all layers of the `grease pencil`, that the selected layer belongs to.
+     * **Selected Keyframe** - Pushes or Pulls keyframes from selected keyframe\s(including) to +__time__ , by user given value, for all layers of the grease pencil\s that the selected kefyrame\s belong to.
