@@ -2,7 +2,7 @@ import blf,os,bpy,time
 import copy
 import numpy as np
 from ...ExternalModules.pyrr import matrix44,Matrix44
-from ...KeyframeNudge_scripts.Grease import Grease_Nudge
+from ...KeyframeNudge_scripts.Grease import Grease_Nudge,Grease_PushPull
 from ...KeyframeNudge_scripts.Keyframe import Keyframe_Nudge,Inbetween,Hold_For,Push_Pull,Nudge,ComeOver
 from ... import Logger, small_tools, Shader_Loader
 from ..Shapes import Text, Rectangle, UVRectangleMasked,Unused_shapes
@@ -298,14 +298,14 @@ class keyframeNUDGE:
             self.slider_stateVal    = self.Slider.getState()
 
             if self.panel_state == 0:                       #n2 if state is Keyframe
-                if self.push_nudge == 1:
+                if self.push_nudge == 1:                    #n2 if nudge/push pull is in push pull
                     self.input = int(self.input)
                     if self.pull_state == 2:
                         Push_Pull.PushPull(-self.input)
                     if self.push_state == 1:
                         Push_Pull.PushPull(self.input)
 
-                elif self.push_nudge == 2:
+                elif self.push_nudge == 2:                  #n2
                     self.input = int(self.input)
                     if self.pull_state == 2:
                         Nudge.keyframe_nudge(-self.input)
@@ -332,9 +332,9 @@ class keyframeNUDGE:
                 if self.push_nudge == 1:
                     self.input = int(self.input)
                     if self.pull_state == 2:
-                        Grease_Nudge.insert_empty_frame(-self.input)
+                        Grease_PushPull.GP_PushPull(-self.input)
                     if self.push_state == 1:
-                        Grease_Nudge.insert_empty_frame(self.input)
+                        Grease_PushPull.GP_PushPull(self.input)
             #n End of Actions Block
 
         else:
