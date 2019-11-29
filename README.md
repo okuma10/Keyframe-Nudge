@@ -73,7 +73,7 @@ Scripts work with regular keyframes for objects in object mode and bones in pose
     * **3 Selected Keyframes** - Script enters Edit Mode explained in '1 Selected Keyframe' case. Except this time value is a Slider controled proportion of the values of the left selected and right selected keyframes.
 
 ### Grease
-Scripts work with `grease pencil keyframes`, found in the grease pencil editor in the Dope Sheet.
+Scripts work with `grease pencil keyframes`, found in the grease pencil editor in the Dope Sheet.  
 **Note** : As with scripts that work with `object keyframes`, scripts that work with `grease pencil keyframes` are dependant on selection. So be mindful of your selections. Blender has the bad habbit of leaving selections active unless user deselects.  
 * [x] Push\Pull  
 * [] Nudge  
