@@ -130,4 +130,12 @@ def PushPull(usr_inp):
                 for channel in group[1].items():
                     for keyf in channel[1]:
                         keyf.co.x += control
+
+    for obj in objects:
+        if obj.animation_data:
+            groups = obj.animation_data.action.groups
+            for group in groups:
+                channels = group.channels
+                for channel in channels:
+                    channel.update()
     forceReDraw()

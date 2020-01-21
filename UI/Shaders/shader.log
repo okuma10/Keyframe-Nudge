@@ -1,0 +1,35 @@
+	l1 ----------- Compiling Shader -----------
+	l1 .. vertex : UI/Shaders/Shape_vert.glsl..
+	l1  fragment : UI/Shaders/Shape_frag.glsl .
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------
+	l1 ----------- Compiling Shader -----------
+	l1 .. vertex : UI/Shaders/Shape_vert.glsl..
+	l1  fragment : UI/Shaders/Slider_frag.glsl 
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------
+	l1 ----------- Compiling Shader -----------
+	l1 .. vertex : UI/Shaders/Shape_vert.glsl..
+	l1  fragment : UI/Shaders/Debug_frag.glsl .
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------
+	l1 ----------- Compiling Shader -----------
+	l1 . vertex : UI/Shaders/flat_vertex.glsl..
+	l1  fragment : UI/Shaders/flat_fragment.glsl 
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------
+	l1 ----------- Compiling Shader -----------
+	l1 .. vertex : UI/Shaders/Shape_vert.glsl..
+	l1  fragment : UI/Shaders/flat_tex_mask_frag.glsl 
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------

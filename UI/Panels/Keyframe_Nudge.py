@@ -329,12 +329,18 @@ class keyframeNUDGE:
 
 
             elif self.panel_state == 1:                     #n4 if state is Grease
-                if self.push_nudge == 1:
+                if self.push_nudge == 1:                        #n3 Push Pull
                     self.input = int(self.input)
                     if self.pull_state == 2:
                         Grease_PushPull.GP_PushPull(-self.input)
                     if self.push_state == 1:
                         Grease_PushPull.GP_PushPull(self.input)
+                elif self.push_nudge == 2:                       #n3 Nudge
+                    self.input = int(self.input)
+                    if self.pull_state == 2:
+                        Grease_Nudge.gp_Nudge(-self.input)
+                    if self.push_state == 1:
+                        Grease_Nudge.gp_Nudge(self.input)
             #n End of Actions Block
 
         else:
