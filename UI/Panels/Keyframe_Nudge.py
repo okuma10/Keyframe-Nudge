@@ -2,7 +2,7 @@ import blf,os,bpy,time
 import copy
 import numpy as np
 from ...ExternalModules.pyrr import matrix44,Matrix44
-from ...KeyframeNudge_scripts.Grease import Grease_Nudge,Grease_PushPull
+from ...KeyframeNudge_scripts.Grease import Grease_Nudge,Grease_PushPull,Grease_HoldFor
 from ...KeyframeNudge_scripts.Keyframe import Keyframe_Nudge,Inbetween,Hold_For,Push_Pull,Nudge,ComeOver
 from ... import Logger, small_tools, Shader_Loader
 from ..Shapes import Text, Rectangle, UVRectangleMasked,Unused_shapes
@@ -289,7 +289,7 @@ class keyframeNUDGE:
 
 
 
-            #n Button actions !!!!
+            #n Button actions !!!! -->
             self.input              = self.InputField.getValue()
             self.pull_state         = self.Pull_Button.getState()
             self.push_state         = self.Push_Button.getState()
@@ -300,26 +300,26 @@ class keyframeNUDGE:
             if self.panel_state == 0:                       #n2 if state is Keyframe
                 if self.push_nudge == 1:                    #n2 if nudge/push pull is in push pull
                     self.input = int(self.input)
-                    if self.pull_state == 2:
+                    if self.pull_state == 2:                #n2 Push
                         Push_Pull.PushPull(-self.input)
                     if self.push_state == 1:
                         Push_Pull.PushPull(self.input)
 
-                elif self.push_nudge == 2:                  #n2
+                elif self.push_nudge == 2:                  #n2 Nudge
                     self.input = int(self.input)
                     if self.pull_state == 2:
                         Nudge.keyframe_nudge(-self.input)
                     if self.push_state == 1:
                         Nudge.keyframe_nudge(self.input)
 
-                if self.come_over_state == 2:
-                    print('Click! Fix Me!')
+                if self.come_over_state == 2:               #n2 Come Over
+                    # print('Click! Fix Me!')
                     ComeOver.comeOver()
-                if self.hold_for_state == 2:
-                    print('Click!! Fix Me')
+                if self.hold_for_state == 2:                #n2 Hold For
+                    # print('Click!! Fix Me')
                     Hold_For.hold_for(self.input)
 
-                if self.slider_stateVal[0] == 1:
+                if self.slider_stateVal[0] == 1:                #n2 Inbetween
                     self.Inbetween_handler.updateSharedData()
                     self.Inbetween_handler.developInbetween()
                 elif self.slider_stateVal[0] == 2:
@@ -341,6 +341,10 @@ class keyframeNUDGE:
                         Grease_Nudge.gp_Nudge(-self.input)
                     if self.push_state == 1:
                         Grease_Nudge.gp_Nudge(self.input)
+
+                if self.hold_for_state == 2:                       #n3 Hold For
+                    Grease_HoldFor.Hold_For(self.input)
+
             #n End of Actions Block
 
         else:
@@ -386,12 +390,12 @@ class keyframeNUDGE:
 
 
 
-        #
+
         # #n Debug Output
         # self.debug = self.InputField.debugs()
         # self.slDebug = self.Slider.debug()
         # self.inbetween_debug = self.Inbetween_handler.debugPrint()
-        #
+        # hold_for_debug = self.hold_For.debug()
         # log.removeHandler()
         # log.addHandler(log_file)
         # log.clearFile()
@@ -410,15 +414,15 @@ class keyframeNUDGE:
         # {"":=^57}
         # | {"Additional Data":^25} | {"State Button 2":25} |
         # ├ {"":-^26}┼{"":-^27}┤
-        # | {" "+ str(self.debug[0]) +" ":.^25} | {"Input":<25} |
-        # | {" "+ str(self.slider_stateVal[0]) +" ":.^25} | {"Slider State":<25} |
-        # | {" "+ str(self.slider_stateVal[1]) +" ":.^25} | {"Slider Value":<25} |
-        # | {" "+ str(self.slDebug[3]) +" ":.^25} | {"Mouse X in Slider":<25} |
-        # | {" "+ str(len(self.inbetween_debug)) +" ":.^25} | {"come Over state":<25} |
-        # | {" "+ str(self.inbetween_gen_map_switch) +" ":.^25} | {"Inbetwen Gen Switch":<25} |
+        # | {" "+ str(hold_for_debug[0]) +" ":.^25} | {"isOver":<25} |
+        # | {" "+ str(hold_for_debug[1]) +" ":.^25} | {"State":<25} |
+        # | {" "+ str(hold_for_debug[2]) +" ":.^25} | {"clickOnce":<25} |
+        # | {" "+ str(None) +" ":.^25} | {"None":<25} |
+        # | {" "+ str(None) +" ":.^25} | {"None":<25} |
+        # | {" "+ str(None) +" ":.^25} | {"None":<25} |
         # {"":=^57}
         # """)
-        #
+
         # log.print(f'X : {self.inbetween_debug[2][0]}, Y : {self.inbetween_debug[2][1]}')
         # log.print('\n')
         # for i in self.inbetween_debug[0].items():

@@ -39,7 +39,7 @@
       <recent name="Z:\Nikola\BlenderDrawDev" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.testfield">
+  <component name="RunManager" selected="Python.Test_Pathfinder">
     <configuration name="PathfinderTest" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="BlenderDrawDev" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -105,9 +105,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.Test_Pathfinder" />
         <item itemvalue="Python.testfield" />
         <item itemvalue="Python.PathfinderTest" />
-        <item itemvalue="Python.Test_Pathfinder" />
       </list>
     </recent_temporary>
   </component>
@@ -137,9 +137,33 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="636" y="365" key="com.intellij.ide.util.TipDialog" timestamp="1579562902817">
+    <state x="740" y="296" key="FileChooserDialogImpl" timestamp="1580145334101">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="636" y="365" key="com.intellij.ide.util.TipDialog/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1579562902817" />
+    <state x="740" y="296" key="FileChooserDialogImpl/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1580145334101" />
+    <state width="1899" height="284" key="GridCell.Tab.0.bottom" timestamp="1580233736531">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1899" height="284" key="GridCell.Tab.0.bottom/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1580233736531" />
+    <state width="1899" height="284" key="GridCell.Tab.0.center" timestamp="1580233736530">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1899" height="284" key="GridCell.Tab.0.center/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1580233736530" />
+    <state width="1899" height="284" key="GridCell.Tab.0.left" timestamp="1580233736530">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1899" height="284" key="GridCell.Tab.0.left/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1580233736530" />
+    <state width="1899" height="284" key="GridCell.Tab.0.right" timestamp="1580233736531">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1899" height="284" key="GridCell.Tab.0.right/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1580233736531" />
+    <state x="922" y="185" key="SettingsEditor" timestamp="1581289179251">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="922" y="185" key="SettingsEditor/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1581289179251" />
+    <state x="636" y="365" key="com.intellij.ide.util.TipDialog" timestamp="1580296252579">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="636" y="365" key="com.intellij.ide.util.TipDialog/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1580296252579" />
   </component>
 </project>

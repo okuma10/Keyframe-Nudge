@@ -72,6 +72,8 @@ class RectangleButton:
         #n Panel Data
         self.state = 0
         self.debugs = [0,0,0,0,0,0,0,0,0]
+        #n Widget Data
+        self.clickOnce = True
 
     #n4 Widget Element Draw
     def draw(self,proj,view):
@@ -108,6 +110,7 @@ class RectangleButton:
         glDisable(GL_BLEND)
 
 
+
     def active(self,mX,mY,mEvent,mAction):
         mouseX  = mX
         mouseY  = mY
@@ -123,24 +126,30 @@ class RectangleButton:
         if self.isOver:
             if mouseEvent == 'LEFTMOUSE' and  mouseAction == 'PRESS' :
                 self.isClicked = True
-
             elif  mouseAction =='RELEASE' :
                 self.isClicked = False
-        else: pass
+                self.clickOnce = True
+
 
         if self.isOver and not self.isClicked:
-            self.state = 1
+                self.state = 1
+                self.clickOnce = True
         elif self.isOver and self.isClicked:
-            self.state = 2
+            if self.clickOnce:
+                self.state = 2
+                self.clickOnce = False
         elif not self.isOver and not self.isClicked:
             self.state = 0
+            self.clickOnce = True
         elif not self.isOver and self.isClicked:
             if mouseAction == 'RELEASE':
                 self.isClicked = False
+                self.clickOnce = True
             self.state = 2
+            self.clickOnce = False
 
 
-        self.debugs =[self.isOver, self.state, (mouseX,mouseY),(dimensions[0].x,dimensions[1].x),mouseEvent,mouseAction]
+        self.debugs =[self.isOver, self.state, self.clickOnce]
 
     def cleanup(self):
         for e in self.widget_elements:
