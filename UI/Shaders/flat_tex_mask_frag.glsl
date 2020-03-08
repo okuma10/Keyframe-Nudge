@@ -3,6 +3,7 @@
 in vec2 UV;
 
 uniform vec4 color;
+uniform vec3 color2;
 uniform sampler2D maskTexture;
 uniform int state;
 
@@ -25,7 +26,7 @@ void main()
     if (state == 2){
         vec3 bgColor = color.rgb;
         mask = mix(1,0,mask);
-        fillColor = mix(bgColor,vec3(1),mask);
+        fillColor = mix(bgColor,color2,mask);
 
         fragColor = vec4(fillColor,1);
     }

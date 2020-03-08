@@ -7,10 +7,10 @@ from ...ExternalModules.pyrr import Vector3
 class Slider:
     def __init__(self, posx, posy, size):
         #n Color
-        self.color_active = [*small_tools.GetThemeColors().active, 1]
-        self.color_text = [*small_tools.GetThemeColors().text, 1]
-        self.color_passive = [*small_tools.GetThemeColors().passive, 1]
-        self.color_back = [*small_tools.GetThemeColors().background]
+        self.color_hover = [0.918, 0.565, 0.522, 1]
+        self.color_active = [0.914, 0.882, 0.8, 1]
+        self.color_passive = [0.431, 0.341, 0.451, 1]
+        self.color_back = [0.2, 0.2, 0.2]
 
         #n Position
         self.parent = Vector3([0,0,0])
@@ -29,7 +29,7 @@ class Slider:
         #n      setup Elements:
         self.rectangle.setParent(*self.pos_plus_parent)
         self.rectangle.setPos(0,0,0)
-        self.rectangle.setColors(self.color_passive, self.color_active, [0.922, 0.231, 0.353, 1.0])
+        self.rectangle.setColors(self.color_passive, self.color_hover, self.color_active)
 
         self.text.setParent(*self.pos_plus_parent)
         self.text.setPos(-self.size[0]/2,0,0)
@@ -133,6 +133,15 @@ class Slider:
         for i in self.widget_text:
             i.setParent(*self.pos_plus_parent)
             i.updatePos()
+
+
+    def setColors(self, passive, hover, active, focus):
+        self.color_passive = passive
+        self.color_hover = hover
+        self.color_active = active
+        self.color_focus = focus
+        self.rectangle.setColors(self.color_passive, self.color_hover, self.color_active)
+
 
     def debug(self):
         return self.debugs

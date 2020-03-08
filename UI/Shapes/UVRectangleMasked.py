@@ -108,7 +108,8 @@ class UVRectangleMasked:
         if self.state == 1:
             self.program.setVec4('color', *self.overColor)
         if self.state == 2:
-            self.program.setVec4('color', *self.activeColor)
+            self.program.setVec4('color', *self.overColor)
+            self.program.setVec3('color2', *self.activeColor[:3])
 
         self.program.setInt('state', self.state)
         self.program.setMat4('mvp', mvp_buffer)

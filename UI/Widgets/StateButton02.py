@@ -11,10 +11,10 @@ class StateButton02:
         self.states = ["KEYFRAME","GREASE"]
         self.currentState = 0
         #n Color
-        self.color_active   = [*small_tools.GetThemeColors().active, 1]
-        self.color_text     = [*small_tools.GetThemeColors().text]
-        self.color_passive  = [*small_tools.GetThemeColors().passive]
-        self.color_back     = [*small_tools.GetThemeColors().background]
+        self.color_hover = [0.918, 0.565, 0.522, 1]
+        self.color_active = [0.914, 0.882, 0.8, 1]
+        self.color_passive = [0.431, 0.341, 0.451, 1]
+        self.color_back = [0.2, 0.2, 0.2]
 
         #n Shader or shaders
         self.program = shader
@@ -83,11 +83,11 @@ class StateButton02:
         #n Draw
         self.text.setScale(self.text_size)
         if self.buttonEvent == 0:
-            self.text.setColor(*self.color_passive,1)
+            self.text.setColor(*self.color_passive)
         elif self.buttonEvent == 1:
-            self.text.setColor(*self.color_active)
+            self.text.setColor(*self.color_hover)
         elif self.buttonEvent == 2:
-            self.text.setColor(*self.color_text,1)
+            self.text.setColor(*self.color_active)
 
         if self.currentState == 0:
             self.text.setPos(-self.text_dimensions[0] / 2, -self.text_dimensions[1] / 2, 0)
@@ -177,5 +177,12 @@ class StateButton02:
 
     def debugs(self):
         self.debug_data = [self.isOver,self.isClicked]
+
+
+    def setColors(self, passive, hover, active, focus):
+        self.color_passive = passive
+        self.color_hover = hover
+        self.color_active = active
+        self.color_focus = focus
 
         return self.debug_data

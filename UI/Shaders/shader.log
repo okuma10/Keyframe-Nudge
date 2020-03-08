@@ -33,3 +33,10 @@
 	l1 Fragment Shader compilation successfull
 	l1 Program Linking Successfull
 	l1 ------------ Compiling END -------------
+	l1 ----------- Compiling Shader -----------
+	l1 .. vertex : UI/Shaders/Shape_vert.glsl..
+	l1  fragment : UI/Shaders/spread_to_frag.glsl 
+	l1 Vertex Shader compilation successfull
+	l1 Fragment Shader compilation successfull
+	l1 Program Linking Successfull
+	l1 ------------ Compiling END -------------

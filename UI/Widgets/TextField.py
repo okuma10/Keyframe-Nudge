@@ -14,18 +14,20 @@ class TextField:
                         'NUMPAD_9', 'NUMPAD_0',
                         'NUMPAD_PERIOD', 'PERIOD',
                         ]
+        self.deletes = ['BACK_SPACE','DEL']
         #n Text
         self._text = '00'
-        self._decimal_text = '0'
+        self._decimal_text = '.0'
         self.string_input = self._text
         self.text_size = 100
         self.control = 0
 
         #n Color
-        self.color_active = [*small_tools.GetThemeColors().active, 1]
-        self.color_active2 = [*small_tools.GetThemeColors().active2, 1]
-        self.color_text = [*small_tools.GetThemeColors().text]
-        self.color_passive = [*small_tools.GetThemeColors().passive]
+        self.color_test = [1, 0.196, 0.424]
+        self.color_hover = [0.918, 0.565, 0.522,1]
+        self.color_focus = [0.831, 0.314, 0.475,1]
+        self.color_active = [0.914, 0.882, 0.8,1]
+        self.color_passive = [0.431, 0.341, 0.451,1]
         self.color_back = [*small_tools.GetThemeColors().background]
 
         #n Position and Parent
@@ -34,6 +36,7 @@ class TextField:
         self.pos_plus_parent = Vector3([self.parent.x + self.widget_pos.x, self.parent.y + self.widget_pos.y, 0])
 
         #n Switches
+        self.oneClick = 1
         self.isOver = False
         self.isOverPlus = False
         self.isOverMinus = False
@@ -60,21 +63,21 @@ class TextField:
 
         self.text.setParent(*self.pos_plus_parent)
         self.text.setPos(0, 0, 0)
-        self.text.setColor(*self.color_passive, 1.0)
+        self.text.setColor(*self.color_passive)
 
         self.text2.setParent(*self.pos_plus_parent)
         self.text2.setPos(0, 0, 0)
-        self.text2.setColor(*self.color_passive, 1.0)
+        self.text2.setColor(*self.color_passive)
 
         self.text_rectangle.setParent(*self.pos_plus_parent)
         self.text_rectangle.setPos(32.5, 39, 0)
         self.text_rectangle.setLineColor(0.149, 0.871, 0.506, 1)
-        self.text_rectangle.setFillColor(*self.color_passive, 0.0)
+        self.text_rectangle.setFillColor(*self.color_passive[:-1], 0.0)
         self.text_rectangle.updateMatrix()
 
         self.line.setParent(*self.pos_plus_parent)
         self.line.setPos(0, self.field_size[1] / 2, 0)
-        self.line.setLineColor(*self.color_active2)
+        self.line.setLineColor(*self.color_focus)
         self.line.setRot(0, 90, 0)
         self.line.setLineWidth(3)
         self.line.updateMatrix()
@@ -83,15 +86,15 @@ class TextField:
         self.minus_triangle.setPos(-10, (self.field_size[1] / 2), 0)
         self.minus_triangle.setRot(0, 270, 0)
         self.minus_triangle.setScale(1, .25, 1)
-        self.minus_triangle.setLineColor(*self.color_passive, 0.0)
-        self.minus_triangle.setFillColor(*self.color_active)
+        self.minus_triangle.setLineColor(*self.color_passive[:-1], 0.0)
+        self.minus_triangle.setFillColor(*self.color_hover)
 
         self.plus_triangle.setParent(*self.pos_plus_parent)
         self.plus_triangle.setPos(self.field_size[0] + 10, (self.field_size[1] / 2), 0)
         self.plus_triangle.setRot(0, 270, 0)
         self.plus_triangle.setScale(1, -.25, 1)
-        self.plus_triangle.setLineColor(*self.color_passive, 0.0)
-        self.plus_triangle.setFillColor(*self.color_active)
+        self.plus_triangle.setLineColor(*self.color_passive[:-1], 0.0)
+        self.plus_triangle.setFillColor(*self.color_hover)
 
         #n plus-minus triangles dimensions
         self.text_field_dimensions = self.text.getDimensions('00')
@@ -107,14 +110,14 @@ class TextField:
         self.minus_rectangle.setParent(*self.pos_plus_parent)
         self.minus_rectangle.setPos(*self.minus_pos)
         self.minus_rectangle.setLineColor(0.149, 0.871, 0.506, 1)
-        self.minus_rectangle.setFillColor(*self.color_active[:-1], .0)
+        self.minus_rectangle.setFillColor(*self.color_hover[:-1], .0)
         self.minus_rectangle.setLineWidth(1)
 
         self.plus_rectangle = Rectangle.Rectangle(plus_width, plus_height, self.program)
         self.plus_rectangle.setParent(*self.pos_plus_parent)
         self.plus_rectangle.setPos(*self.plus_pos)
         self.plus_rectangle.setLineColor(0.149, 0.871, 0.506, 1)
-        self.plus_rectangle.setFillColor(*self.color_active[:-1], .0)
+        self.plus_rectangle.setFillColor(*self.color_hover[:-1], .0)
         self.plus_rectangle.setLineWidth(1)
 
         self.widget_elements = [self.text_rectangle,
@@ -134,6 +137,7 @@ class TextField:
             i.setParent(*self.pos_plus_parent)
             i.updatePos()
 
+        self._text = '2'
         self.debug = False
         self.debug1 = []
         self.debut_text_pos = None
@@ -159,29 +163,31 @@ class TextField:
 
         #n 0
         if len(self._text) == 1:
+            # self.text_field_dimensions = self.text.getDimensions(self._text)
+            # self.minus_rectangle.setPos(-self.text_field_dimensions[0]/2, 0, 0)
             self.text.setPos(active_width/2-current_text[0]/2, 0, 0)
             self.line.setPos(active_width/2-current_text[0]/2, self.field_size[1] / 2, 0)
             self.line.setLineWidth(3)
             self.line.updateMatrix()
 
             if not self.isOver and not self.isEdited:
-                self.text.setColor(*self.color_passive, 1.0)
+                self.text.setColor(*self.color_passive)
                 self.text.draw(self._text)
 
             elif self.isOver and self.isEdited:
-                self.text.setColor(*self.color_active2)
+                self.text.setColor(*self.color_focus)
                 self.text.draw(self._text)
                 self.line.draw(self.program, proj, view)
 
             elif not self.isOver and self.isEdited:
-                self.text.setColor(*self.color_active2)
+                self.text.setColor(*self.color_focus)
                 self.text.draw(self._text)
                 self.line.draw(self.program, proj, view)
 
             elif self.isOver and not self.isEdited:
                 self.minus_triangle.draw(self.program, proj, view)
                 self.plus_triangle.draw(self.program, proj, view)
-                self.text.setColor(*self.color_active)
+                self.text.setColor(*self.color_hover)
                 self.text.draw(self._text)
 
         #n 00
@@ -192,36 +198,36 @@ class TextField:
             self.line.updateMatrix()
 
             if not self.isOver and not self.isEdited:
-                self.text.setColor(*self.color_passive, 1.0)
+                self.text.setColor(*self.color_passive)
                 self.text.draw(self._text)
 
             elif self.isOver and self.isEdited:
-                self.text.setColor(*self.color_active2)
+                self.text.setColor(*self.color_focus)
                 self.text.draw(self._text)
                 self.line.draw(self.program, proj, view)
 
             elif not self.isOver and self.isEdited:
-                self.text.setColor(*self.color_active2)
+                self.text.setColor(*self.color_focus)
                 self.text.draw(self._text)
                 self.line.draw(self.program, proj, view)
 
             elif self.isOver and not self.isEdited:
                 self.minus_triangle.draw(self.program, proj, view)
                 self.plus_triangle.draw(self.program, proj, view)
-                self.text.setColor(*self.color_active)
+                self.text.setColor(*self.color_hover)
                 self.text.draw(self._text)
 
         elif len(self._text) == 0:
             if self.isEdited and self.isOver:
                 self.line.setPos(self.field_size[0], self.field_size[1] / 2, 0)
-                self.line.setLineColor(*self.color_active2)
+                self.line.setLineColor(*self.color_focus)
                 self.line.setLineWidth(1)
                 self.line.updateMatrix()
                 self.line.draw(self.program, proj, view)
 
             elif self.isOver and not self.isEdited:
                 self.line.setPos(self.field_size[0], self.field_size[1] / 2, 0)
-                self.line.setLineColor(*self.color_active)
+                self.line.setLineColor(*self.color_hover)
                 self.line.setLineWidth(2)
                 self.line.updateMatrix()
                 self.line.draw(self.program, proj, view)
@@ -229,14 +235,14 @@ class TextField:
                 self.text.setPos((self.field_size[0] / 2) - (self.text_size / 10), 0, 0)
                 self.text.draw("!")
 
-                self.minus_triangle.setLineColor(*self.color_active[:-1], 0.0)
-                self.plus_triangle.setLineColor(*self.color_active[:-1], 0.0)
+                self.minus_triangle.setLineColor(*self.color_hover[:-1], 0.0)
+                self.plus_triangle.setLineColor(*self.color_hover[:-1], 0.0)
                 self.minus_triangle.draw(self.program, proj, view)
                 self.plus_triangle.draw(self.program, proj, view)
 
             elif not self.isOver and not self.isEdited:
                 self.line.setPos(self.field_size[0], self.field_size[1] / 2, 0)
-                self.line.setLineColor(*self.color_active)
+                self.line.setLineColor(*self.color_hover)
                 self.line.setLineWidth(2)
                 self.line.updateMatrix()
                 self.line.draw(self.program, proj, view)
@@ -245,7 +251,7 @@ class TextField:
                 self.text.draw("0")
             elif not self.isOver and self.isEdited:
                 self.line.setPos(self.field_size[0], self.field_size[1] / 2, 0)
-                self.line.setLineColor(*self.color_active2)
+                self.line.setLineColor(*self.color_focus)
                 self.line.setLineWidth(1)
                 self.line.updateMatrix()
                 self.line.draw(self.program, proj, view)
@@ -259,12 +265,14 @@ class TextField:
             pass
 
         if self.plusClick:
-            self.plus_triangle.setFillColor(*self.color_text, 1)
-        elif self.minusClick:
-            self.minus_triangle.setFillColor(*self.color_text, 1)
-        else:
-            self.minus_triangle.setFillColor(*self.color_active)
+            # self.plus_triangle.setFillColor(*self.color_text, 1)
             self.plus_triangle.setFillColor(*self.color_active)
+        elif self.minusClick:
+            # self.minus_triangle.setFillColor(*self.color_text, 1)
+            self.minus_triangle.setFillColor(*self.color_active)
+        else:
+            self.minus_triangle.setFillColor(*self.color_hover)
+            self.plus_triangle.setFillColor(*self.color_hover)
 
         # glDisable(GL_BLEND)
 
@@ -278,81 +286,88 @@ class TextField:
         dimensions = (self.minus_rectangle.getPositions()[1], self.plus_rectangle.getPositions()[0])
         self.control = control
 
+        #n Check if mouse is over widget
         if dimensions[0].x < mouseX < dimensions[1].x and dimensions[1].y < mouseY < dimensions[0].y:
             self.isOver = True
         else:
             self.isOver = False
 
-        if self.isOver and not self.isEdited:
-            #n Look for triangles
+
+
+        #n IF mouse is over widget
+        if self.isOver:
+            #n Check if mouse is over triangles
             if self.minus_rectangle.getPositions()[0].x > mouseX:
                 self.isOverMinus = True
-
             elif self.plus_rectangle.getPositions()[1].x < mouseX:
                 self.isOverPlus = True
             else:
                 self.isOverPlus = False
                 self.isOverMinus = False
 
-            #n If click
-            if mouseEvent == 'LEFTMOUSE' and mouseAction == 'PRESS':
-                if self.isOverMinus:
+            #n Check if mouse is clicking on top of Triangles
+            if self.isOverMinus and mouseEvent == 'LEFTMOUSE' and mouseAction == 'PRESS':
+                if self.oneClick:
                     self.minusClick = True
-
-                elif self.isOverPlus:
+            elif self.isOverPlus and mouseEvent =='LEFTMOUSE' and mouseAction == 'PRESS':
+                if self.oneClick:
                     self.plusClick = True
-
-                else:
-                    self.isEdited = True
-                    self.isImput = False
-
-            elif mouseEvent == 'LEFTMOUSE' and mouseAction == 'RELEASE':
-                self.minusClick = False
+            else:
                 self.plusClick = False
+                self.minusClick = False
 
-        elif not self.isOver and self.isEdited:
-            if mouseEvent == 'RET':
-                self.isEdited = False
-            elif mouseEvent == 'NUMPAD_ENTER':
-                self.isEdited = False
+            #n Check if click is over Number
+            if not self.isOverMinus and not self.isOverPlus and mouseEvent =='LEFTMOUSE' and mouseAction == 'PRESS':
+                self.isEdited = True
 
-        elif self.isOver and self.isEdited:
-            if mouseEvent == 'RET':
-                self.isEdited = False
-            elif mouseEvent == 'NUMPAD_ENTER':
-                self.isEdited = False
-
-
-        elif not self.isOver and not self.isEdited:
-            pass
-        else:
-            pass
-
-        #n Input Logic
-        if self.isEdited:
-            if mouseEvent == "BACK_SPACE" and mouseAction == "PRESS":
-                if self.control == 2:
-                    if len(self._decimal_text) > 0:
-                        if len(self._text) > 1:
-                            self.isDecimal = True
-                        elif len(self._text) is not 0:
-                            self.isDecimal = False
-
-                if self.isDecimal:
-                    if len(self._decimal_text) is 0:
-                        self.isDecimal = False
-                    else:
+            #n Input Logic
+            #- Plus Minus
+            if self.minusClick:
+                if not self.isImput:
+                    number = int(self._text) if len(self._text)>0 else 0
+                    if number <= 0:
                         pass
-
-                if self.isDecimal:
-                    if self.isImput < 1:
-                        self._decimal_text = ""
-                        self.isImput += 1
+                    else:
+                        number -= 1
+                    self._text = str(number)
+                    self.isImput = True
                 else:
-                    if self.isImput < 1:
-                        self._text = self._text[:-1]
-                        self.isImput += 1
+                    pass
 
+            elif self.plusClick:
+                if not self.isImput:
+                    if len(self._text) != 0:
+                        number = int(self._text)
+                        number += 1
+                        self._text = str(number)
+                    self.isImput = True
+                else:
+                    pass
+
+            # Number Field
+            if mouseEvent in self.deletes and mouseAction == "PRESS":
+                    if self.control == 2:
+                        if len(self._decimal_text) > 0:
+                            if len(self._text) > 1:
+                                self.isDecimal = True
+                            elif len(self._text) is not 0:
+                                self.isDecimal = False
+
+                    if self.isDecimal:
+                        if len(self._decimal_text) is 0:
+                            self.isDecimal = False
+                        else:
+                            pass
+
+                    if self.isDecimal:
+                        if self.isImput < 1:
+                            self._decimal_text = ""
+                            self.isImput += 1
+                    else:
+                        if self.isImput < 1:
+                            self._text = self._text[:-1]
+                            self.isImput += 1
+            #n  Control numbers input
             elif keyboard in self.numbers and mouseAction == 'PRESS':
                 if len(self._decimal_text) >= 1:
                     self.isDecimal = False
@@ -388,37 +403,27 @@ class TextField:
                         else:
                             pass
 
-            elif keyboard == '.' and mouseAction == 'PRESS':
-                self.isDecimal = True
-
-            elif mouseAction == 'RELEASE':
-                self.isImput = False
 
 
 
-        if self.minusClick:
-            if not self.isImput:
-                number = int(self._text)
-                if number <= 0:
-                    pass
-                else:
-                    number -= 1
-                self._text = str(number)
-                self.isImput = True
-            else:
-                pass
+            #n Control click
 
-        elif self.plusClick:
-            if not self.isImput:
-                if len(self._text) != 0:
-                    number = int(self._text)
-                    number += 1
-                    self._text = str(number)
-                self.isImput = True
-            else:
-                pass
-        # log.removeHandler()
+            if mouseEvent == 'LEFTMOUSE' and mouseAction == 'PRESS':
+                self.oneClick = 0
+            elif mouseEvent == 'LEFTMOUSE' and mouseAction == 'RELEASE':
+                self.oneClick = 1
 
+        else:
+            pass
+
+        #n Control isEdit
+        if self.isEdited:
+            if mouseEvent == 'RET':
+                self.isEdited = False
+            elif mouseEvent == 'NUMPAD_ENTER':
+                self.isEdited = False
+
+        #n Control isInput
         if mouseAction == "RELEASE":
             self.isImput = False
 
@@ -463,6 +468,21 @@ class TextField:
             i.setParent(*self.pos_plus_parent)
             i.updatePos()
 
+    def setColors(self, passive, hover, active, focus):
+        self.color_passive = passive
+        self.color_hover = hover
+        self.color_active = active
+        self.color_focus = focus
+        self.text.setColor(*self.color_passive)
+        self.text2.setColor(*self.color_passive)
+        self.text_rectangle.setLineColor(0.149, 0.871, 0.506, 1)
+        self.text_rectangle.setFillColor(*self.color_passive[:-1], 0.0)
+        self.line.setLineColor(*self.color_focus)
+        self.minus_triangle.setLineColor(*self.color_passive[:-1], 0.0)
+        self.minus_triangle.setFillColor(*self.color_hover)
+        self.plus_triangle.setLineColor(*self.color_passive[:-1], 0.0)
+        self.plus_triangle.setFillColor(*self.color_hover)
+
     def debugs(self):
-        self.debug1 = [self._text,self.debut_text_pos]
+        self.debug1 = [self.isEdited,self.isOver,self.isOverMinus,self.isOverPlus, self.minusClick,self.plusClick,self.isImput,self.oneClick]
         return self.debug1

@@ -9,10 +9,10 @@ class RectangleButton2:
     def __init__(self,size, size_shape, shader, shape):
 
         # Color
-        self.color_active = [*small_tools.GetThemeColors().active,1]
-        self.color_text = [*small_tools.GetThemeColors().text,1]
-        self.color_passive = [*small_tools.GetThemeColors().passive,1]
-        self.color_back = [*small_tools.GetThemeColors().background]
+        self.color_hover = [0.918, 0.565, 0.522, 1]
+        self.color_active = [0.914, 0.882, 0.8, 1]
+        self.color_passive = [0.431, 0.341, 0.451, 1]
+        self.color_back = [0.2, 0.2, 0.2]
 
         self.widget_pos = Vector3([0, 0, 0])
         self.parent = Vector3([0,0,0])
@@ -36,7 +36,7 @@ class RectangleButton2:
 
         self.rectangle.setParent(*self.pos_plus_parent)
         self.rectangle.setPos(*self.widget_pos)
-        self.rectangle.setColors(self.color_passive,self.color_active,[0.922, 0.231, 0.353,1.0])
+        self.rectangle.setColors(self.color_passive, self.color_hover, self.color_active)
 
         #n          update matricies befor draw loop
         for i in self.widget_elements:
@@ -120,6 +120,13 @@ class RectangleButton2:
             i.setParent(*self.pos_plus_parent)
             i.updateMatrix()
 
+
+    def setColors(self, passive, hover, active, focus):
+        self.color_passive = passive
+        self.color_hover = hover
+        self.color_active = active
+        self.color_focus = focus
+        self.rectangle.setColors(self.color_passive, self.color_hover, self.color_active)
 
     def getState(self):
         return self.isState

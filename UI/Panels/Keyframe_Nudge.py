@@ -2,13 +2,17 @@ import blf,os,bpy,time
 import copy
 import numpy as np
 from ...ExternalModules.pyrr import matrix44,Matrix44
-from ...KeyframeNudge_scripts.Grease import Grease_Nudge,Grease_PushPull,Grease_HoldFor
-from ...KeyframeNudge_scripts.Keyframe import Keyframe_Nudge,Inbetween,Hold_For,Push_Pull,Nudge,ComeOver
+#n4 Import Scripts Block
+from ...KeyframeNudge_scripts.Grease import Grease_Nudge, Grease_PushPull, Grease_HoldFor, Grease_SpreadTo, Grease_ComeOver
+from ...KeyframeNudge_scripts.Keyframe import Inbetween,Hold_For,Push_Pull,Nudge,ComeOver
+#n4 End of Block
 from ... import Logger, small_tools, Shader_Loader
+#n5 Import UI Block
 from ..Shapes import Text, Rectangle, UVRectangleMasked,Unused_shapes
 from ..Widgets import RectangleButton, RectangleButton2,\
                         StateButton, TextField,\
                         Slider, StateButton02
+#n5 End of Block
 from bgl import *
 from pathlib import Path
 
@@ -25,23 +29,30 @@ for parent in parents:
 
 class keyframeNUDGE:
     def __init__(self,posX,posY,width,height):
+        #n Scene Data
+        self.framerate = bpy.context.scene.render.fps
         #n Shaders
         self.basic_shader       = Shader_Loader.ShaderLoader()
         self.test_shader        = Shader_Loader.ShaderLoader()
         self.slider_shader      = Shader_Loader.ShaderLoader()
         self.flat_masked_shader = Shader_Loader.ShaderLoader()
         self.debug_shader       = Shader_Loader.ShaderLoader()
+        self.spread_to_shader   = Shader_Loader.ShaderLoader()
         #n   Load Shaders
         self.test_shader.compile_shader         (UI_dir + "/Shaders/Shape_vert.glsl" ,  UI_dir + "/Shaders/Shape_frag.glsl")
         self.slider_shader.compile_shader       (UI_dir + "/Shaders/Shape_vert.glsl" ,  UI_dir + "/Shaders/Slider_frag.glsl")
         self.debug_shader.compile_shader        (UI_dir + "/Shaders/Shape_vert.glsl" ,  UI_dir + "/Shaders/Debug_frag.glsl")
         self.basic_shader.compile_shader        (UI_dir + "/Shaders/flat_vertex.glsl",  UI_dir + "/Shaders/flat_fragment.glsl")
         self.flat_masked_shader.compile_shader  (UI_dir + "/Shaders/Shape_vert.glsl" ,  UI_dir + "/Shaders/flat_tex_mask_frag.glsl")
+        self.spread_to_shader.compile_shader    (UI_dir + "/Shaders/Shape_vert.glsl" ,  UI_dir + "/Shaders/spread_to_frag.glsl")
         #n Colors
-        self.color_active = [*small_tools.GetThemeColors().active, 1]
-        self.color_text = [*small_tools.GetThemeColors().text,1]
-        self.color_passive = [*small_tools.GetThemeColors().passive]
-        self.color_back = [*small_tools.GetThemeColors().background]
+        self.themeColors = small_tools.GetThemeColors().getColors()
+        self.color_hover = [*self.themeColors[0], 1]
+        # self.color_text = [*small_tools.GetThemeColors().text,1]
+        self.color_active = [*self.themeColors[3], 1]
+        self.color_passive = [*self.themeColors[2],1]
+        self.color_focus = [*self.themeColors[1],1]
+        self.color_back = [*self.themeColors[-1]]
 
         #n pos and dimensions
         self.pos = [posX+(width/2),posY-(height/2),0]
@@ -68,31 +79,31 @@ class keyframeNUDGE:
         self.bgRect_pos = self.bg.getPositions()
         self.bg.setParent(*self.pos)
         self.bg.setPos(0,0,0)
-        self.bg.setFillColor(*self.color_passive, 0)
+        self.bg.setFillColor(*self.color_passive[:-1], 0)
 
         self.tLCorner.setParent(*self.pos)
         self.tLCorner.setPos(self.bgRect_pos[0].x+10,self.bgRect_pos[1].y-10,0)
         self.tLCorner.setScale(-1,1,1)
-        self.tLCorner.setLineColor(*self.color_passive,1)
+        self.tLCorner.setLineColor(*self.color_passive)
 
         self.tRCorner.setParent(*self.pos)
         self.tRCorner.setPos(self.bgRect_pos[1].x-10, self.bgRect_pos[1].y-10, 0)
         self.tRCorner.setScale(1, 1, 1)
-        self.tRCorner.setLineColor(*self.color_passive, 1)
+        self.tRCorner.setLineColor(*self.color_passive)
 
         self.bLCorner.setParent(*self.pos)
         self.bLCorner.setPos(self.bgRect_pos[0].x + 10, self.bgRect_pos[0].y + 10, 0)
         self.bLCorner.setScale(-1, -1, 1)
-        self.bLCorner.setLineColor(*self.color_passive, 1)
+        self.bLCorner.setLineColor(*self.color_passive)
 
         self.bRCorner.setParent(*self.pos)
         self.bRCorner.setPos(self.bgRect_pos[1].x - 10, self.bgRect_pos[0].y + 10, 0)
         self.bRCorner.setScale(1, -1, 1)
-        self.bRCorner.setLineColor(*self.color_passive, 1)
+        self.bRCorner.setLineColor(*self.color_passive)
 
         self.translate.setParent(*self.pos)
         self.translate.setPos(self.dimensions[0]/6,self.dimensions[1]/2,0)
-        self.translate.setColors([*self.color_passive,1],self.color_active,self.color_active)
+        self.translate.setColors(self.color_passive, self.color_hover, self.color_active)
 
         #n Widgets
         #n  init
@@ -111,10 +122,12 @@ class keyframeNUDGE:
 
         self.InputField     = TextField.TextField(self.basic_shader)
 
+        self.SpreadTo       = RectangleButton.RectangleButton([105, 30],self.basic_shader)
+
         self.widget_elements = [self.StateButton_01,    self.StateButton_02,
                                 self.Slider,            self.Push_Button,
                                 self.Pull_Button,       self.hold_For,
-                                self.come_Over,
+                                self.come_Over,         self.SpreadTo,
                                 self.InputField,
                                 self.TitleState,
                                 ]
@@ -124,29 +137,44 @@ class keyframeNUDGE:
         self.StateButton_01.setPos(-108, 85, 0)
         self.StateButton_02.setParent(*self.pos)
         self.StateButton_02.setPos(2, 85, 0)
+        self.StateButton_01.setColors(self.color_passive,self.color_hover,self.color_active,self.color_focus)
+        self.StateButton_02.setColors(self.color_passive,self.color_hover,self.color_active,self.color_focus)
 
         self.TitleState.setParent(*self.pos)
         self.TitleState.setPos(-self.dimensions[0]/7.5,self.dimensions[1]/2,0)
+        self.TitleState.setColors(self.color_passive,self.color_hover,self.color_active,self.color_focus)
 
         self.come_Over.setParent(*self.pos)
         self.come_Over.setPos(53,-50,0)
         self.come_Over.setText("COME OVER")
+        self.come_Over.setColors(self.color_passive,self.color_hover,self.color_active,self.color_focus)
 
         self.hold_For.setParent(*self.pos)
         self.hold_For.setPos(-53,-50,0)
         self.hold_For.setText("HOLD FOR")
+        self.hold_For.setColors(self.color_passive, self.color_hover, self.color_active, self.color_focus)
 
         self.Pull_Button.setParent(*self.pos)
         self.Pull_Button.setPos(-50, -5, 0)
+        self.Pull_Button.setColors(self.color_passive, self.color_hover, self.color_active, self.color_focus)
 
         self.Push_Button.setParent(*self.pos)
         self.Push_Button.setPos(-50, 45, 0)
+        self.Push_Button.setColors(self.color_passive, self.color_hover, self.color_active, self.color_focus)
 
         self.Slider.setParent(*self.pos)
         self.Slider.setPos(0,-100,0)
+        self.Slider.setColors(self.color_passive,self.color_hover,self.color_active,self.color_focus)
 
         self.InputField.setParent(*self.pos)
         self.InputField.setPos(22,-15,0)
+        self.InputField.setColors(self.color_passive,self.color_hover,self.color_active,self.color_focus)
+
+        self.SpreadTo.setParent(*self.pos)
+        self.SpreadTo.setPos(-53,-82,0)
+        self.SpreadTo.setText('SPREAD TO')
+        self.SpreadTo.setColors(self.color_passive,self.color_hover,self.color_active,self.color_focus)
+        # self.SpreadTo.setColors(self.color_hover,self.color_hover,self.color_active,self.color_focus)
 
         #n  update
         for i in self.widget_elements:
@@ -171,6 +199,7 @@ class keyframeNUDGE:
         self.once = True
         self.debug = []
         self.myproj = None
+        self.shouldColorUpdate = False
         #n Button States
         self.frame_seconds      = None
         self.push_nudge         = None
@@ -180,6 +209,7 @@ class keyframeNUDGE:
         self.hold_for_state     = None
         self.input              = None
         self.slider_stateVal    = [None,None]
+        self.spread_to_state    = None
         self.Inbetween_handler  = Inbetween.Inbetween()
         self.inbetween_gen_map_switch = True
         self.slDebug = self.Slider.debug()
@@ -219,6 +249,7 @@ class keyframeNUDGE:
             self.hold_For.draw(proj,view)
             self.InputField.draw(proj,view)
             self.TitleState.draw(proj,view)
+
         elif self.panel_state ==1: # Grease Pencil tools
             self.StateButton_01.draw(proj, view)
             self.StateButton_02.draw(proj, view)
@@ -228,6 +259,7 @@ class keyframeNUDGE:
             self.hold_For.draw(proj, view)
             self.InputField.draw(proj, view)
             self.TitleState.draw(proj, view)
+            self.SpreadTo.draw(proj, view)
 
 
         glDisable(GL_BLEND)
@@ -281,6 +313,7 @@ class keyframeNUDGE:
             self.Push_Button.active     (mX, mY, mouseEvent, mouseAction)
             self.come_Over.active       (mX, mY, mouseEvent, mouseAction)
             self.hold_For.active        (mX, mY, mouseEvent, mouseAction)
+            self.SpreadTo.active        (mX, mY, mouseEvent, mouseAction)
 
             self.frame_seconds = self.StateButton_02.getState()
             self.push_nudge    = self.StateButton_01.getState()
@@ -290,26 +323,32 @@ class keyframeNUDGE:
 
 
             #n Button actions !!!! -->
-            self.input              = self.InputField.getValue()
+            #n Modify input based oon seconds or frames -> always output frames as integers
+            if self.frame_seconds == 1:
+                self.input          = self.InputField.getValue()
+            elif self.frame_seconds == 2:
+                self.input          = small_tools.seconds2frames(self.InputField.getValue(),self.framerate)
+            #n End of input block
             self.pull_state         = self.Pull_Button.getState()
             self.push_state         = self.Push_Button.getState()
             self.come_over_state    = self.come_Over.getState()
             self.hold_for_state     = self.hold_For.getState()
             self.slider_stateVal    = self.Slider.getState()
+            self.spread_to_state    = self.SpreadTo.getState()
 
             if self.panel_state == 0:                       #n2 if state is Keyframe
                 if self.push_nudge == 1:                    #n2 if nudge/push pull is in push pull
                     self.input = int(self.input)
-                    if self.pull_state == 2:                #n2 Push
+                    if self.pull_state == 2:                #Pull
                         Push_Pull.PushPull(-self.input)
-                    if self.push_state == 1:
+                    if self.push_state == 1:                #Push
                         Push_Pull.PushPull(self.input)
 
-                elif self.push_nudge == 2:                  #n2 Nudge
+                elif self.push_nudge == 2:                  #n2 if nudge/push pull is in Nudge
                     self.input = int(self.input)
-                    if self.pull_state == 2:
+                    if self.pull_state == 2:                #Nudge <--
                         Nudge.keyframe_nudge(-self.input)
-                    if self.push_state == 1:
+                    if self.push_state == 1:                #Nudge -->
                         Nudge.keyframe_nudge(self.input)
 
                 if self.come_over_state == 2:               #n2 Come Over
@@ -328,7 +367,7 @@ class keyframeNUDGE:
                     pass
 
 
-            elif self.panel_state == 1:                     #n4 if state is Grease
+            elif self.panel_state == 1:                     #n3 if state is Grease
                 if self.push_nudge == 1:                        #n3 Push Pull
                     self.input = int(self.input)
                     if self.pull_state == 2:
@@ -344,6 +383,12 @@ class keyframeNUDGE:
 
                 if self.hold_for_state == 2:                       #n3 Hold For
                     Grease_HoldFor.Hold_For(self.input)
+                if self.come_over_state == 2:                      #n3 Come Over
+                    Grease_ComeOver.gp_come_over()
+                if self.spread_to_state == 2:                      #n3 Spread To
+                    # print('Spread to is clicked!!')
+                    Grease_SpreadTo.gp_spread_to()
+
 
             #n End of Actions Block
 
@@ -389,10 +434,28 @@ class keyframeNUDGE:
             isActive = False
 
 
+        #n Check for Color Change
+        #
+        # for index,i in enumerate(small_tools.GetThemeColors().getColors()):
+        #     print(index,i)
+        #     if i[0] == self.themeColors[index][0] and i[1] == self.themeColors[index][1] and i[2] == self.themeColors[index][2]:
+        #         print('color is the same')
+        #     else:
+        #         print('colors changed')
+        #         self.shouldColorUpdate = True
+        #
+        # if self.shouldColorUpdate:
+        #     self.themeColors = small_tools.GetThemeColors().getColors()
+        #     self.color_hover = [*self.themeColors[0], 1]
+        #     self.color_active = [*self.themeColors[3], 1]
+        #     self.color_passive = [*self.themeColors[2], 1]
+        #     self.color_focus = [*self.themeColors[1], 1]
+        #     self.color_back = [*self.themeColors[-1]]
+        #     #make this in to a function.
+        #     self.InputField.setColors(self.color_passive, self.color_hover, self.color_active, self.color_focus)
 
-
-        # #n Debug Output
-        # self.debug = self.InputField.debugs()
+        #n Debug Output
+        # self.debug = self.SpreadTo.debug()
         # self.slDebug = self.Slider.debug()
         # self.inbetween_debug = self.Inbetween_handler.debugPrint()
         # hold_for_debug = self.hold_For.debug()
@@ -414,11 +477,12 @@ class keyframeNUDGE:
         # {"":=^57}
         # | {"Additional Data":^25} | {"State Button 2":25} |
         # ├ {"":-^26}┼{"":-^27}┤
-        # | {" "+ str(hold_for_debug[0]) +" ":.^25} | {"isOver":<25} |
-        # | {" "+ str(hold_for_debug[1]) +" ":.^25} | {"State":<25} |
-        # | {" "+ str(hold_for_debug[2]) +" ":.^25} | {"clickOnce":<25} |
-        # | {" "+ str(None) +" ":.^25} | {"None":<25} |
-        # | {" "+ str(None) +" ":.^25} | {"None":<25} |
+        # | {" "+ str(self.spread_to_state) +" ":.^25} | {"spread state":<25} |
+        # | {" "+ str(self.debug[0]) +" ":.^25} | {"isOver":<25} |
+        # | {" "+ str(self.debug[1]) +" ":.^25} | {"state":<25} |
+        # | {" "+ str(self.debug[2]) +" ":.^25} | {"isClicked":<25} |
+        # | {" "+ str(self.debug[3]) +" ":.^25} | {"clickOnce":<25} |
+        # | {" "+ str(self.frame_seconds) +" ":.^25} | {"frame seconds state":<25} |
         # | {" "+ str(None) +" ":.^25} | {"None":<25} |
         # {"":=^57}
         # """)

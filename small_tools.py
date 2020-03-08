@@ -2,10 +2,6 @@ import bpy
 import numpy as np
 from .ExternalModules.pyrr import Vector3
 
-point1   = Vector3([ 50, 100, 0])
-point2   = Vector3([100, 150, 0])
-control1 = Vector3([ 50, 150, 0])
-
 
 class QadricBezier:
     def __init__(self, p1, c1, p2 , resolution):
@@ -189,13 +185,15 @@ class ParametricCircle:
 
 
 class GetThemeColors:
+    '''
+    gets some theme colors
+    '''
     def __init__(self):
         self.background = None
         self.passive = None
         self.active = None
 
         current_theme = bpy.context.preferences.themes.items()[0][0]
-        outliner = bpy.context.preferences.themes[current_theme].outliner
         view_3d = bpy.context.preferences.themes[current_theme].view_3d
         user_interface = bpy.context.preferences.themes[current_theme].user_interface.wcol_toolbar_item
 
@@ -204,6 +202,9 @@ class GetThemeColors:
         self.text = user_interface.text
         self.passive = view_3d.camera
         self.background = user_interface.inner
+
+    def getColors(self):
+        return [self.active,self.active2,self.passive,self.text,self.background]
 
 def remapRange(a, b, c, d, t):
     oldNormal = (t-a)/(b-a)
@@ -214,6 +215,99 @@ def remapRange(a, b, c, d, t):
         remapedValue = d
     return remapedValue
 
+
+#n Color Conversion
+
+def rgb_to_hsv(rgb):
+    # print(f'Inside rgb_to_hsv function\n RGB-in{rgb}\nRGB int {np.array(rgb)*255}')
+
+    hue = 0
+    saturation = 0
+    value = 0
+
+    cMin = np.min(rgb)
+    cMax = np.max(rgb)
+    delta = cMax-cMin
+    # Value
+    value=cMax
+
+    # Saturation Hue
+    if delta<0.00001:
+        hue=0
+        saturation=0
+
+    # saturation
+    if cMax > 0.0:
+        saturation=(delta/cMax)
+    else:
+        saturation=0
+        hue=0
+
+    # hue
+    if rgb[0] >= cMax: hue = (rgb[1]-rgb[2])/delta
+    elif rgb[1]>= cMax: hue = 2 + (rgb[2]-rgb[0])/delta
+    else: hue = 4 + (rgb[0]-rgb[1])/delta
+
+    # turn to degrees
+    hue *= 60
+
+    if hue < 0.0: hue += 360
+    return [hue,saturation,value]
+
+
+def hsv_to_rgb(h, s, v):
+    if s == 0.0: return (v, v, v)
+    i = int(h * 6.)  # XXX assume int() truncates!
+    f = (h * 6.) - i
+    p, q, t = v * (1. - s), v * (1. - s * f), v * (1. - s * (1. - f))
+    i %= 6
+    if i == 0: return (v, t, p)
+    if i == 1: return (q, v, p)
+    if i == 2: return (p, v, t)
+    if i == 3: return (p, q, v)
+    if i == 4: return (t, p, v)
+    if i == 5: return (v, p, q)
+
+#n Color harmony - complimentary if I ever need it
+def harmonize2rgb(color, harmony):
+    inHSV = rgb_to_hsv(color)
+    rHue =  inHSV[0]
+    newHue = 0
+    outRGB = []
+    rule = []
+    if harmony == 'complimentary':
+        rule = [0,180]
+        distance = 360-rHue
+        # print(f'distance {distance}')
+        if distance > rule[-1]:
+            newHue = rHue + rule[-1]
+        else:
+            newHue = (rHue+rule[-1])-360
+    # print(f'\n{"":-^20}')
+    outRGB = hsv_to_rgb(newHue/360,inHSV[1],inHSV[2])
+    # print(f'In harmonize2rgb\nin RGB{color} HSV{inHSV }\nnew Hue{newHue} , out RGB{outRGB}')
+    # print(np.array(outRGB)*255)
+    return outRGB
+
+
+def rounding_my(number):
+    init_number = number
+    return_number = 0
+
+    if type(init_number) is type(1):
+        return init_number
+    else:
+        int_number, decimal = str(init_number).split(".")
+        decimal = float("0." + decimal)
+        if decimal < .55:
+            return_number = int(int_number)
+        else:
+            return_number = int(int_number) + 1
+
+        return return_number
+
+def seconds2frames(seconds, scene_framerate):
+    return rounding_my(seconds*scene_framerate)
 
 
 

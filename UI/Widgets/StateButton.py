@@ -11,10 +11,10 @@ class StateButton:
         self.buttonText = 'PUSH|PULL'
 
         # Color
-        self.color_active = [*small_tools.GetThemeColors().active,1]
-        self.color_text = [*small_tools.GetThemeColors().text]
-        self.color_passive = [*small_tools.GetThemeColors().passive]
-        self.color_back = [*small_tools.GetThemeColors().background]
+        self.color_hover = [0.918, 0.565, 0.522, 1]
+        self.color_active = [0.914, 0.882, 0.8, 1]
+        self.color_passive = [0.431, 0.341, 0.451, 1]
+        self.color_back = [0.2, 0.2, 0.2]
 
         self.widget_pos = Vector3([0, 0, 0])
         self.parent = Vector3([0,0,0])
@@ -43,20 +43,20 @@ class StateButton:
 
         #n      setup Elements
         self.rectangle.setPos(52.5,15,0)
-        self.rectangle.setFillColor(*self.color_back[:-1],.2)
+        self.rectangle.setFillColor(*self.color_back,.2)
         self.rectangle.setLineColor(0.922, 0.231, 0.353,1)
         self.rectangle.setLineWidth(2)
 
         self.rectangle2.setPos(52.5,0,0)
-        self.rectangle2.setLineColor(*self.color_passive,1)
-        self.rectangle2.setFillColor(*self.color_passive,1)
+        self.rectangle2.setLineColor(*self.color_passive)
+        self.rectangle2.setFillColor(*self.color_passive)
         self.rectangle2.setLineWidth(2)
 
         self.text.setParent(*self.pos_plus_parent)
-        self.text.setColor(*self.color_passive,1)
+        self.text.setColor(*self.color_passive)
 
         self.text2.setParent(*self.pos_plus_parent)
-        self.text2.setColor(*self.color_passive,1)
+        self.text2.setColor(*self.color_passive)
 
         #n          update matricies befor draw loop
         for i in self.widget_elements:
@@ -79,52 +79,52 @@ class StateButton:
         if self.isState == self.states[0]:
             self.buttonText = self.states[0]
             if self.isOver is False:
-                self.rectangle2.setFillColor(*self.color_passive,1)
-                self.rectangle2.setLineColor(*self.color_passive,0)
+                self.rectangle2.setFillColor(*self.color_passive)
+                self.rectangle2.setLineColor(*self.color_passive[:-1],0)
                 self.rectangle2.draw(proj,view)
-                self.text.setColor(*self.color_passive,1)
+                self.text.setColor(*self.color_passive)
                 self.text.setPos(-1, 8.5, 0)
                 self.text.draw(self.buttonText)
 
             elif self.isOver is True:
                 if self.isClicked is True:
-                    self.rectangle2.setFillColor(*self.color_active)
-                    self.rectangle2.setLineColor(*self.color_active[:-1],0)
-                    self.rectangle2.draw( proj, view)
-                    self.text2.setPos(-1, 8.5, 0)
-                    self.text2.setColor(*self.color_text,1)
-                    self.text2.draw(self.buttonText)
-                    # self.rectangle2.draw(self.program, proj, view)
-                elif self.isClicked is False:
-                    self.rectangle2.setFillColor(*self.color_active)
-                    self.rectangle2.setLineColor(*self.color_active[:-1],0)
+                    self.rectangle2.setFillColor(*self.color_hover)
+                    self.rectangle2.setLineColor(*self.color_hover[:-1], 0)
                     self.rectangle2.draw( proj, view)
                     self.text2.setPos(-1, 8.5, 0)
                     self.text2.setColor(*self.color_active)
+                    self.text2.draw(self.buttonText)
+                    # self.rectangle2.draw(self.program, proj, view)
+                elif self.isClicked is False:
+                    self.rectangle2.setFillColor(*self.color_hover)
+                    self.rectangle2.setLineColor(*self.color_hover[:-1], 0)
+                    self.rectangle2.draw( proj, view)
+                    self.text2.setPos(-1, 8.5, 0)
+                    self.text2.setColor(*self.color_hover)
                     self.text2.draw(self.buttonText)
 
         elif self.isState == self.states[1]:
             self.buttonText = self.states[1]
             if self.isOver is False:
-                self.rectangle2.setFillColor(*self.color_passive, 1)
-                self.rectangle2.setLineColor(*self.color_passive, 0)
+                self.rectangle2.setFillColor(*self.color_passive)
+                self.rectangle2.setLineColor(*self.color_passive[:-1], 0)
                 self.rectangle2.draw( proj, view)
-                self.text.setColor(*self.color_passive, 1)
+                self.text.setColor(*self.color_passive)
                 self.text.draw(self.buttonText)
 
             elif self.isOver is True:
                 if self.isClicked is True:
-                    self.rectangle2.setFillColor(*self.color_active)
-                    self.rectangle2.setLineColor(*self.color_active[:-1],0)
+                    self.rectangle2.setFillColor(*self.color_hover)
+                    self.rectangle2.setLineColor(*self.color_hover[:-1], 0)
                     self.rectangle2.draw( proj, view)
-                    self.text2.setColor(*self.color_text, 1)
+                    self.text2.setColor(*self.color_active)
                     self.text2.draw(self.buttonText)
 
                 elif self.isClicked is False:
-                    self.rectangle2.setFillColor(*self.color_active)
-                    self.rectangle2.setLineColor(*self.color_active[:-1],0)
+                    self.rectangle2.setFillColor(*self.color_hover)
+                    self.rectangle2.setLineColor(*self.color_hover[:-1], 0)
                     self.rectangle2.draw( proj, view)
-                    self.text2.setColor(*self.color_active)
+                    self.text2.setColor(*self.color_hover)
                     self.text2.draw(self.buttonText)
 
 
@@ -204,6 +204,17 @@ class StateButton:
         for i in self.text_elements:
             i.setParent(*self.pos_plus_parent)
             i.updatePos()
+
+    def setColors(self, passive, hover, active, focus):
+        self.color_passive = passive
+        self.color_hover = hover
+        self.color_active = active
+        self.color_focus = focus
+        self.rectangle.setLineColor(*self.color_passive)
+        self.rectangle2.setLineColor(*self.color_passive)
+        self.rectangle2.setFillColor(*self.color_passive)
+        self.text.setColor(*self.color_passive)
+        self.text2.setColor(*self.color_passive)
 
     def debug(self):
         return self.debugs
