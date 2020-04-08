@@ -86,7 +86,7 @@ def gp_come_over():
                         if keyframe.frame_number in keys_in_Map[0]:
                             idx = keys_in_Map[0].index(keyframe.frame_number)
                             keyframe.frame_number = new_selected_pos[idx]
-
+                    layer.select = False
                 else:
                     print('There are no Keyframes selected.')
 

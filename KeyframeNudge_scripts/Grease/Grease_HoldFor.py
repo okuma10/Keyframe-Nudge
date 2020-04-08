@@ -97,7 +97,7 @@ def Hold_For(usr_inp):
                                 if keyframe.frame_number in non_selected_kf_x:
                                     kf_ix = int(np.where(non_selected_kf_x == keyframe.frame_number)[0])
                                     keyframe.frame_number = new_non_selected_kef_x[kf_ix]
-
+                        layer.select = False
             # if no selected keyframes , report error
             else:
                 print(f'No keyframes selected for object {pencil.name}')

@@ -220,7 +220,7 @@ class keyframeNUDGE:
         glEnable(GL_BLEND)
         glEnable(GL_LINE_SMOOTH)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        #n0 Background
+        #n Background
         # self.bg.draw(proj,view)
         self.tLCorner.draw(proj,view)
         self.tRCorner.draw(proj,view)

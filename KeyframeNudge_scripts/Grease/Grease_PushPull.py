@@ -95,4 +95,6 @@ def GP_PushPull(usr_inp):
             for i in range(0, len(work_list)):
                 work_list[i].frame_number = new_pos[i]
 
+            # layer.select = False
+
     forceReDraw()

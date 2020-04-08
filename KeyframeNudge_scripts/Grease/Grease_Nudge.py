@@ -67,6 +67,7 @@ def gp_Nudge(usr_inp):
                             list_id = int(np.where(selected_kf_x == keyframe.frame_number)[0])
 
                             keyframe.frame_number = new_kf_x[list_id]
+                    layer.select = False
 
     forceReDraw()
 

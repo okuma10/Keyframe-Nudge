@@ -27,6 +27,7 @@ def poke_view():
     poke = bpy.context.preferences.view.ui_scale
     bpy.context.preferences.view.ui_scale = 0.2
     bpy.context.preferences.view.ui_scale = poke
+    print(f'I poked blender to draw my pannel')
 
 
 #n Projection and view matrix
@@ -76,6 +77,7 @@ def draw():
         #n Elements
 
         Panel = Keyframe_Nudge.keyframeNUDGE(370, 405, 275, 275)
+        poke_view()
 
 
     #n2 Draw and Update

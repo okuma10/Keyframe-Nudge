@@ -109,5 +109,7 @@ def gp_spread_to():
                                 kf_ix = int(np.where(selected_kf_x == keyframe.frame_number)[0])
                                 keyframe.frame_number = rounding_my(new_selected_kf_x[kf_ix])
 
+                    layer.select = False
+
     forceReDraw()
 
