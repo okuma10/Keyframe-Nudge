@@ -7,6 +7,10 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ElmWorkspace">
+    <elmProjects />
+    <settings elmCompilerPath="" elmFormatPath="" elmTestPath="" isElmFormatOnSaveEnabled="false" />
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -19,7 +23,6 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
@@ -111,18 +114,6 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="ServiceViewManager">
-    <option name="viewStates">
-      <list>
-        <serviceView>
-          <treeState>
-            <expand />
-            <select />
-          </treeState>
-        </serviceView>
-      </list>
-    </option>
-  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -165,9 +156,13 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="399" y="197" width="1270" height="713" key="SettingsEditor/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1586350082609" />
-    <state x="636" y="365" key="com.intellij.ide.util.TipDialog" timestamp="1586350589137">
+    <state x="636" y="365" key="com.intellij.ide.util.TipDialog" timestamp="1586354984073">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="636" y="365" key="com.intellij.ide.util.TipDialog/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1586350589137" />
+    <state x="636" y="365" key="com.intellij.ide.util.TipDialog/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1586354984073" />
+    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup" timestamp="1586353799383">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="623" y="239" width="672" height="678" key="search.everywhere.popup/0.0.1920.1080/1920.0.1024.1280@0.0.1920.1080" timestamp="1586353799383" />
   </component>
 </project>

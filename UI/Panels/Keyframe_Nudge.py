@@ -5,14 +5,14 @@ from ...ExternalModules.pyrr import matrix44,Matrix44
 #n4 Import Scripts Block
 from ...KeyframeNudge_scripts.Grease import Grease_Nudge, Grease_PushPull, Grease_HoldFor, Grease_SpreadTo, Grease_ComeOver
 from ...KeyframeNudge_scripts.Keyframe import Inbetween,Hold_For,Push_Pull,Nudge,ComeOver
-#n4 End of Block
+#n4
 from ... import Logger, small_tools, Shader_Loader
 #n5 Import UI Block
 from ..Shapes import Text, Rectangle, UVRectangleMasked,Unused_shapes
 from ..Widgets import RectangleButton, RectangleButton2,\
                         StateButton, TextField,\
                         Slider, StateButton02
-#n5 End of Block
+#n5
 from bgl import *
 from pathlib import Path
 

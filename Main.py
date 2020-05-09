@@ -8,19 +8,27 @@ from pathlib import Path
 parent = str(Path(__file__).parent)
 
 #n get the dimensions of the View 3d - I guess works only with one view3d .
-def get_view_dimensions():
+def get_view_dimensions(callArea=None):
     view_width = None
     view_height = None
     view_posX = None
     view_posY = None
+    call_area = callArea
     windows = bpy.context.window_manager.windows
-    for window in windows:
-        for area in window.screen.areas:
-            if area.type        =="VIEW_3D":
-                view_width     = area.regions[5].width
-                view_height   = area.regions[5].height
-                view_posX = area.x
-                view_posY = area.y
+    if call_area is None: # this is a hack.... because of the lame structure of the code. But it works
+        for window in windows:
+            for area in window.screen.areas:
+                if area.type        =="VIEW_3D":
+                    view_width     = area.regions[5].width
+                    view_height   = area.regions[5].height
+                    view_posX = area.x
+                    view_posY = area.y
+    else:
+        view_width = call_area.regions[5].width
+        view_height = call_area.regions[5].height
+        view_posX = call_area.x
+        view_posY = call_area.y
+
     return (view_width,view_height),(view_posX,view_posY)
 
 def poke_view():
@@ -35,6 +43,7 @@ view_dimensions = get_view_dimensions()[0]
 view_position = get_view_dimensions()[1]
 projection = matrix44.create_orthogonal_projection_matrix(0, view_dimensions[0], 0, view_dimensions[1], 0.001, 1000, dtype = float32)
 view = matrix44.create_from_translation([0, 0, -0.1], dtype=float32)
+#
 
 start_ui = None
 #n Draw handler for the draw function
@@ -59,7 +68,10 @@ viewport_size_change = False
 
 
 #n1 Draw Function
-def draw():
+def draw(area):
+    # This was a check to see if I could Identify the area the panel is called from
+    # print(f'\033[30;41m{area.type} : {area.as_pointer()}\033[0m')
+    # print(f'\033[30;43m{bpy.context.area.type} : {bpy.context.area.as_pointer()}\033[0m')
     mouse_x         = bpy.data.scenes[0].mouse_data.mouse_posx
     mouse_y         = bpy.data.scenes[0].mouse_data.mouse_posy
     mouse_event     = bpy.data.scenes[0].mouse_data.mouse_event
@@ -82,35 +94,36 @@ def draw():
 
     #n2 Draw and Update
     else:
-        #n5 Draw:
-        if viewport_size_change:
-            view_dimensions,view_position = get_view_dimensions()[0],get_view_dimensions()[1]
-            projection = matrix44.create_orthogonal_projection_matrix(0, view_dimensions[0], 0, view_dimensions[1], 0.001, 1000, dtype=float32)
-            viewport_size_change = False
-        else: pass
+        if bpy.context.area == area:
+            #n5 Draw:
+            if viewport_size_change:
+                view_dimensions,view_position = get_view_dimensions(area)[0],get_view_dimensions(area)[1]
+                projection = matrix44.create_orthogonal_projection_matrix(0, view_dimensions[0], 0, view_dimensions[1], 0.001, 1000, dtype=float32)
+                viewport_size_change = False
+            else: pass
 
-        ct = np.sin(time.time())
+            ct = np.sin(time.time())
 
-        currentTime = time.process_time()
-        nbFrames += 1
-        if(currentTime-lastTime) >= 1:
-            fps = 1000.0/nbFrames
+            currentTime = time.process_time()
+            nbFrames += 1
+            if(currentTime-lastTime) >= 1:
+                fps = 1000.0/nbFrames
 
-            nbFrames = 0
-            lastTime += 1
+                nbFrames = 0
+                lastTime += 1
 
-        else:pass
+            else:pass
 
-        #n7 Update:
+            #n7 Update:
 
-        Panel.draw(projection,view)
-        isOver = Panel.active(mouse_x, mouse_y, mouse_event, mouse_action,view_position,fps)
+            Panel.draw(projection,view)
+            isOver = Panel.active(mouse_x, mouse_y, mouse_event, mouse_action,view_position,fps)
 
 
-        current_view_dimensions, current_view_pos = get_view_dimensions()[0], get_view_dimensions()[1]
-        if view_dimensions[0] != current_view_dimensions[0] or view_dimensions[1] != view_dimensions[0]:
-            message = "Screen Size Changed"
-            viewport_size_change = True
+            current_view_dimensions, current_view_pos = get_view_dimensions(area)[0], get_view_dimensions(area)[1]
+            if view_dimensions[0] != current_view_dimensions[0] or view_dimensions[1] != view_dimensions[0]:
+                message = "Screen Size Changed"
+                viewport_size_change = True
 
     #n4 Cleanup :
     if clear:

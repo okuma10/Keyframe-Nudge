@@ -39,17 +39,17 @@ class A_OT_RunMyScript(bpy.types.Operator):
         on_off = not on_off
 
         if on_off:
-            for i,area in enumerate(bpy.data.window_managers[0].windows[0].screen.areas):
-                if area.x == area_pos[0] and area.y == area_pos[1]:
-                    area_no = i
-            the_area = bpy.data.window_managers[0].windows[0].screen.areas[area_no]
-            print(the_area.type)
-            print(area_no)
-            print(area_pos)
-            print(the_area.x,the_area.y)
-
-            if context.area.x == area_pos[0]:
-                draw_handler = context.area.spaces[0].draw_handler_add(Main.draw, (), 'WINDOW', 'POST_PIXEL')
+            # for i,area in enumerate(bpy.data.window_managers[0].windows[0].screen.areas):
+            #     if area.x == area_pos[0] and area.y == area_pos[1]:
+            #         area_no = i
+            # the_area = bpy.data.window_managers[0].windows[0].screen.areas[area_no]
+            # print(the_area.type)
+            # print(area_no)
+            # print(area_pos)
+            # print(the_area.x,the_area.y)
+            #
+            # if context.area.x == area_pos[0]:
+            draw_handler = context.area.spaces[0].draw_handler_add(Main.draw, (context.area,), 'WINDOW', 'POST_PIXEL')
 
             Main.poke_view()
             importlib.reload(get_data)
